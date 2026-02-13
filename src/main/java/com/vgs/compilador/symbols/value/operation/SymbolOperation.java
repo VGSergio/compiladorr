@@ -3,13 +3,6 @@ package com.vgs.compilador.symbols.value.operation;
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.symbols.value.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
-import com.vgs.compilador.symbols.value.operation.operator.SymbolArithmeticOperator;
-import com.vgs.compilador.symbols.value.operation.operator.SymbolLogicalOperator;
-import com.vgs.compilador.symbols.value.operation.operator.SymbolOperator;
-import static com.vgs.compilador.symbols.value.operation.operator.SymbolOperator.OperationType.ARITHMETIC;
-import static com.vgs.compilador.symbols.value.operation.operator.SymbolOperator.OperationType.LOGICAL;
-import static com.vgs.compilador.symbols.value.operation.operator.SymbolOperator.OperationType.RELATIONAL;
-import com.vgs.compilador.symbols.value.operation.operator.SymbolRelationalOperator;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
@@ -22,6 +15,7 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
     private final SymbolOperator operator;
     private final SymbolValue secondOperand;
 
+    // (value)
     public SymbolOperation(SymbolValue firstOperand, Location left, Location right) {
         super("Operation", left, right);
         this.firstOperand = firstOperand;
@@ -31,7 +25,8 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
         this.type = SymbolType.VOID(left, right);
     }
 
-    private SymbolOperation(SymbolValue firstOperand, SymbolOperator<?> operator, Location left, Location right) {
+    // Unary operation
+    public SymbolOperation(SymbolValue firstOperand, SymbolOperator operator, Location left, Location right) {
         super("Operation", left, right);
         this.firstOperand = firstOperand;
         this.operator = operator;
@@ -40,33 +35,14 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
         this.type = SymbolType.VOID(left, right);
     }
 
-    private SymbolOperation(SymbolValue firstOperand, SymbolOperator<?> operator, SymbolValue secondOperand, Location left, Location right) {
+    // Operation
+    public SymbolOperation(SymbolValue firstOperand, SymbolOperator operator, SymbolValue secondOperand, Location left, Location right) {
         super("Operation", left, right);
         this.firstOperand = firstOperand;
         this.operator = operator;
         this.secondOperand = secondOperand;
         this.value = this;
         this.type = SymbolType.VOID(left, right);
-    }
-
-    public static SymbolOperation createOperation(SymbolValue firstOperand, SymbolArithmeticOperator operator, SymbolValue secondOperand, Location left, Location right) {
-        return new SymbolOperation(firstOperand, operator, secondOperand, left, right);
-    }
-
-    public static SymbolOperation createOperation(SymbolValue firstOperand, SymbolRelationalOperator operator, SymbolValue secondOperand, Location left, Location right) {
-        return new SymbolOperation(firstOperand, operator, secondOperand, left, right);
-    }
-
-    public static SymbolOperation createOperation(SymbolValue firstOperand, SymbolLogicalOperator operator, SymbolValue secondOperand, Location left, Location right) {
-        return new SymbolOperation(firstOperand, operator, secondOperand, left, right);
-    }
-
-    public static SymbolOperation createOperation(SymbolOperation firstOperand, SymbolOperator<?> operator, Location left, Location right) {
-        if (!operator.isUnaryCompatible()) {
-            ErrorManager.semantic(firstOperand, String.format("Invalid Operator Type: %s for unary operation", operator.getOperationType()));
-            return null;
-        }
-        return new SymbolOperation(firstOperand, operator, left, right);
     }
 
     private boolean validateOperation() {
@@ -80,7 +56,7 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
         }
 
         SymbolType fot = firstOperand.getType();
-        switch (operator.getOperationType()) {
+        switch (operator.getOperatorType()) {
             case ARITHMETIC: {
                 if (!fot.isNumeric()) {
                     addSemanticError(String.format("[validateOperation] Operator %s not compatible with operands %s and ", operator, firstOperand, secondOperand));
@@ -125,7 +101,7 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
             return false;
         }
 
-        switch (operator.getOperationType()) {
+        switch (operator.getOperatorType()) {
             case ARITHMETIC: {
                 if (!fot.isNumeric()) {
                     addSemanticError(String.format("[validateUnaryOperation] Operator %s not compatible with operand %s", operator, firstOperand));
@@ -144,23 +120,19 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
     }
 
     public void computeOperationType() {
-        SymbolType.typesEnum fot = firstOperand.getType().getType();
-        if (!isOperation()) {
-            this.type.setType(fot);
-            return;
-        }
-        
-        if (!validateOperation()) {
+        if (!isOperation()) {  // Solo un operando (paréntesis)
+            this.type.setType(firstOperand.getType().getType());
             return;
         }
 
-        switch (operator.getOperationType()) {
-            case ARITHMETIC ->
-                this.type.setType(fot);
-            case LOGICAL ->
-                this.type.setType(fot);
-            case RELATIONAL ->
-                this.type.setType(SymbolType.typesEnum.Boolean);
+        if (!validateOperation()) {
+            return;
+        }
+        SymbolType.typesEnum fot = firstOperand.getType().getType();
+
+        switch (operator.getOperatorType()) {
+            case ARITHMETIC, LOGICAL -> this.type.setType(fot);
+            case RELATIONAL -> this.type.setType(SymbolType.typesEnum.Boolean);
         }
     }
 
