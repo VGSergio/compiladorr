@@ -3,12 +3,12 @@ com\vgs\compilador\symbols\SymbolBase.class
 com\vgs\compilador\symbols\value\operation\operator\SymbolArithmeticOperator$ArithmeticOperator.class
 com\vgs\compilador\symbols\value\operation\operator\SymbolRelationalOperator$RelationalOperator.class
 com\vgs\compilador\symbols\value\operation\operator\SymbolLogicalOperator$LogicalOperator.class
+com\vgs\compilador\Main.class
 com\vgs\compilador\Parser.class
 com\vgs\compilador\manager\TokenManager.class
 com\vgs\compilador\symbols\instruction\SymbolInstruction.class
 com\vgs\compilador\symbols\value\SymbolType.class
 com\vgs\compilador\Scanner.class
-com\vgs\compilador\Compilador.class
 com\vgs\compilador\ParserSym.class
 com\vgs\compilador\symbols\value\operation\operator\SymbolOperator$OperationType.class
 com\vgs\compilador\symbols\value\operation\SymbolOperation.class
