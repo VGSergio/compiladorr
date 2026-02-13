@@ -1,0 +1,17 @@
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\Compilador.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\manager\ErrorManager.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\manager\TokenManager.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\instruction\SymbolInstruction.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\instruction\SymbolInstructions.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\SymbolBase.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\value\operation\operator\SymbolArithmeticOperator.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\value\operation\operator\SymbolLogicalOperator.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\value\operation\operator\SymbolOperator.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\value\operation\operator\SymbolRelationalOperator.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\value\operation\SymbolOperation.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\value\SymbolLiteral.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\value\SymbolType.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\src\main\java\com\vgs\compilador\symbols\value\SymbolValue.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\target\generated-sources\cup\com\vgs\compilador\Parser.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\target\generated-sources\cup\com\vgs\compilador\ParserSym.java
+C:\Users\sergi\Documents\NetBeansProjects\compilador\target\generated-sources\jflex\com\vgs\compilador\Scanner.java

@@ -1,0 +1,192 @@
+package com.vgs.compilador;
+
+import com.vgs.compilador.manager.ErrorManager;
+import com.vgs.compilador.symbols.value.SymbolLiteral;
+import com.vgs.compilador.symbols.value.SymbolValue;
+import com.vgs.compilador.symbols.value.operation.SymbolOperation;
+import com.vgs.compilador.symbols.value.operation.operator.SymbolArithmeticOperator;
+import com.vgs.compilador.symbols.value.operation.operator.SymbolLogicalOperator;
+import com.vgs.compilador.symbols.value.operation.operator.SymbolRelationalOperator;
+import java.util.LinkedList;
+import java_cup.runtime.Symbol;
+import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+
+class Parser;
+
+parser code {:
+private int line;
+private int column;
+private String tokenName;
+
+@Override
+public void syntax_error(Symbol cur_token) {
+    getTokenData(cur_token);
+    ErrorManager.syntax(line, column, tokenName, getExpectedTokens(), false);
+}
+
+@Override
+public void unrecovered_syntax_error(Symbol cur_token) throws Exception {
+    report_fatal_error("Couldn't repair and continue parse", cur_token);
+}
+
+@Override
+public void report_fatal_error(String message, Object info) {
+    done_parsing();
+
+    getTokenData((ComplexSymbol)info);
+    ErrorManager.syntax(line, column, tokenName, getExpectedTokens(), true);
+}
+
+private LinkedList<String> getExpectedTokens() {
+    LinkedList<String> list = new LinkedList<>();
+    for (Integer expected : expected_token_ids()) {
+        list.add(symbl_name_from_id(expected));
+    }
+    return list;
+}
+
+private void getTokenData(Symbol cur_token){
+    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol)cur_token;
+    line = cs.getLeft().getLine();
+    column = cs.getRight().getColumn();
+    tokenName = cs.getName();
+}
+:};
+
+// Simbolos terminales
+terminal                    MAIN;
+terminal                    INT, DOUBLE, BOOLEAN, CHAR, STRING, VOID;
+terminal                    FINAL, NEW, RETURN;
+terminal                    ASSIGN, IF, ELSE, SWITCH, CASE, BREAK, DEFAULT, FOR, WHILE;
+terminal                    INPUT, PRINT;
+terminal                    ADD, SUB, MUL, DIV, MOD;
+terminal                    EQ, NE, GT, LT, GE, LE;
+terminal                    AND, OR, NOT, XOR;
+terminal                    ADD_ASSIGN, SUB_ASSIGN, MUL_ASSIGN, DIV_ASSIGN;
+terminal                    LPAREN, RPAREN, LSQUARE, RSQUARE, LBRACKET, RBRACKET, SEMICOLON, COLON, COMMA;
+
+terminal        Integer     INTEGER_LITERAL;
+terminal        Double      DOUBLE_LITERAL;
+terminal        Boolean     BOOLEAN_LITERAL;
+terminal        Character   CHAR_LITERAL;
+terminal        String      STRING_LITERAL;
+terminal        String      IDENTIFIER;
+
+// Simbolos no terminales
+nonterminal     SymbolValue                 program;
+nonterminal     SymbolValue                 value, operand, literal, variable, functionCall;
+nonterminal     SymbolOperation             logicalOrOperation, logicalXorOperation, logicalAndOperation;
+nonterminal     SymbolOperation             equalityOperation, relationalOperation, unaryOperation;
+nonterminal     SymbolOperation             additiveOperation, multiplicativeOperation;
+
+
+// Precedendias, de menos a más
+// https://developer.mozilla.org/es/docs/Web/JavaScript/Reference/Operators/Operator_precedence#tabla
+precedence right    ASSIGN;         // Nivel 2 de precedencia
+precedence left     OR;             // Nivel 6 de precedencia
+precedence left     XOR;            // Nivel 7 de precedencia
+precedence left     AND;            // Nivel 8 de precedencia
+precedence left     EQ, NE;         // Nivel 9 de precedencia
+precedence left     GT, LT, GE, LE; // Nivel 10 de precedencia
+precedence left     ADD, SUB;       // Nivel 12 de precedencia
+precedence left     MUL, DIV, MOD;  // Nivel 13 de precedencia
+precedence right    NOT;            // Nivel 15 de precedencia
+
+start with program;
+
+program ::=
+    value:v1  {: RESULT = v1; :}
+;
+
+value ::=
+    logicalOrOperation:v1
+        {: RESULT = v1; :}
+;
+
+logicalOrOperation ::=
+    logicalOrOperation:v1 OR:v2 logicalXorOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolLogicalOperator.OR(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   logicalXorOperation:v1
+        {: RESULT = v1; :}
+;
+
+logicalXorOperation ::=
+    logicalXorOperation:v1 XOR:v2 logicalAndOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolLogicalOperator.XOR(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   logicalAndOperation:v1
+        {: RESULT = v1; :}
+;
+
+logicalAndOperation ::=
+    logicalAndOperation:v1 AND:v2 equalityOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolLogicalOperator.AND(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   equalityOperation:v1
+        {: RESULT = v1; :}
+;
+
+equalityOperation ::=
+    equalityOperation:v1 EQ:v2 relationalOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolRelationalOperator.EQ(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   equalityOperation:v1 NE:v2 relationalOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolRelationalOperator.NE(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   relationalOperation:v1
+        {: RESULT = v1; :}
+;
+
+relationalOperation ::=
+    relationalOperation:v1 GT:v2 additiveOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolRelationalOperator.GT(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   relationalOperation:v1 LT:v2 additiveOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolRelationalOperator.LT(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   relationalOperation:v1 GE:v2 additiveOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolRelationalOperator.GE(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   relationalOperation:v1 LE:v2 additiveOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolRelationalOperator.LE(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   additiveOperation:v1
+        {: RESULT = v1; :}
+;
+
+additiveOperation ::=
+    additiveOperation:v1 ADD:v2 multiplicativeOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolArithmeticOperator.ADD(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   additiveOperation:v1 SUB:v2 multiplicativeOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolArithmeticOperator.SUB(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   multiplicativeOperation:v1
+        {: RESULT = v1; :}
+;
+
+multiplicativeOperation ::=
+    multiplicativeOperation:v1 MUL:v2 unaryOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolArithmeticOperator.MUL(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   multiplicativeOperation:v1 DIV:v2 unaryOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolArithmeticOperator.DIV(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   multiplicativeOperation:v1 MOD:v2 unaryOperation:v3
+        {: RESULT = SymbolOperation.createOperation(v1, SymbolArithmeticOperator.MOD(v2xleft, v2xright), v3, v1xleft, v1xright); :}
+|   unaryOperation:v1
+        {: RESULT = v1; :}
+;
+
+unaryOperation ::=
+    NOT:v1 unaryOperation:v2
+        {: RESULT = SymbolOperation.createOperation(v2, SymbolLogicalOperator.NOT(v1xleft, v1xright), v1xleft, v1xright); :}
+|   SUB:v1 unaryOperation:v2
+        {: RESULT = SymbolOperation.createOperation(v2, SymbolArithmeticOperator.SUB(v1xleft, v1xright), v1xleft, v1xright); :}
+|   operand:v1
+        {: RESULT = new SymbolOperation(v1, v1xleft, v1xright); :}
+;
+
+operand ::=
+    LPAREN value:v1 RPAREN
+        {: RESULT = v1; :}
+|   literal:v1
+        {: RESULT = v1; :}
+;
+
+literal ::=
+    INTEGER_LITERAL:v1          {: RESULT = SymbolLiteral.createInteger(v1, v1xleft, v1xright); :}
+|   DOUBLE_LITERAL:v1           {: RESULT = SymbolLiteral.createDouble(v1, v1xleft, v1xright); :}
+|   BOOLEAN_LITERAL:v1          {: RESULT = SymbolLiteral.createBoolean(v1, v1xleft, v1xright); :}
+|   CHAR_LITERAL:v1             {: RESULT = SymbolLiteral.createChar(v1, v1xleft, v1xright); :}
+|   STRING_LITERAL:v1           {: RESULT = SymbolLiteral.createString(v1, v1xleft, v1xright); :}
+;
