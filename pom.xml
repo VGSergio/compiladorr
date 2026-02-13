@@ -8,7 +8,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
-        <exec.mainClass>com.vgs.compilador.Compilador</exec.mainClass>
+        <exec.mainClass>com.vgs.compilador.Main</exec.mainClass>
     </properties>
     
     <dependencies>
@@ -66,7 +66,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>compiler.Main</mainClass>
+                            <mainClass>com.vgs.compilador.Main</mainClass>
                         </manifest>
                     </archive>
                     <finalName>compiler</finalName>
