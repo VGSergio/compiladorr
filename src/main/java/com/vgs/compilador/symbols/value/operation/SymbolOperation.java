@@ -3,6 +3,7 @@ package com.vgs.compilador.symbols.value.operation;
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.symbols.value.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
+import com.vgs.compilador.symbols.value.operation.SymbolOperator.OperatorType;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
@@ -14,129 +15,128 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
     private final SymbolValue firstOperand;
     private final SymbolOperator operator;
     private final SymbolValue secondOperand;
+    private final OperationKind kind;
 
-    // (value)
+    // Constructor para paréntesis: (value)
     public SymbolOperation(SymbolValue firstOperand, Location left, Location right) {
         super("Operation", left, right);
         this.firstOperand = firstOperand;
         this.operator = null;
         this.secondOperand = null;
+        this.kind = OperationKind.PARENTHESIS;
         this.value = this;
         this.type = SymbolType.VOID(left, right);
     }
 
-    // Unary operation
+    // Constructor para operación unaria: -value, !value
     public SymbolOperation(SymbolValue firstOperand, SymbolOperator operator, Location left, Location right) {
         super("Operation", left, right);
         this.firstOperand = firstOperand;
         this.operator = operator;
         this.secondOperand = null;
+        this.kind = OperationKind.UNARY;
         this.value = this;
         this.type = SymbolType.VOID(left, right);
     }
 
-    // Operation
+    // Constructor para operación binaria: a + b
     public SymbolOperation(SymbolValue firstOperand, SymbolOperator operator, SymbolValue secondOperand, Location left, Location right) {
         super("Operation", left, right);
         this.firstOperand = firstOperand;
         this.operator = operator;
         this.secondOperand = secondOperand;
+        this.kind = OperationKind.BINARY;
         this.value = this;
         this.type = SymbolType.VOID(left, right);
     }
 
     private boolean validateOperation() {
-        if (isUnaryOperation()) {
-            return validateUnaryOperation();
+        return kind == OperationKind.UNARY ? validateUnary() : validateBinary();
+    }
+
+    private boolean validateUnary() {
+        if (!operator.isUnaryCompatible()) {
+            return validateOperationError("Operator %s is not unary compatible", operator);
+        }
+
+        SymbolType fot = firstOperand.getType();
+        if (!fot.isUnaryCompatible()) {
+            return validateOperationError("Operand %s is not unary compatible", fot);
+        }
+
+        OperatorType opType = operator.getOperatorType();
+        return switch (opType) {
+            case ARITHMETIC ->
+                validateNumeric(fot, opType);
+            case LOGICAL ->
+                validateBoolean(fot);
+            default ->
+                validateOperationError("Operator %s cannot be unary", operator);
+        };
+    }
+
+    private boolean validateBinary() {
+        if (firstOperand == null || secondOperand == null || operator == null) {
+            return validateOperationError("Invalid binary operation: missing operand or operator");
         }
 
         if (!firstOperand.getType().equals(secondOperand.getType())) {
-            addSemanticError(String.format("[validateOperation] First operand %s and second operand %s are notcompatible", firstOperand, secondOperand));
-            return false;
+            return validateOperationError("Type mismatch: %s and %s", firstOperand.getType(), secondOperand.getType());
         }
 
         SymbolType fot = firstOperand.getType();
-        switch (operator.getOperatorType()) {
-            case ARITHMETIC: {
-                if (!fot.isNumeric()) {
-                    addSemanticError(String.format("[validateOperation] Operator %s not compatible with operands %s and ", operator, firstOperand, secondOperand));
-                    return false;
-                }
-            }
-            case LOGICAL: {
-                if (!fot.isBoolean()) {
-                    addSemanticError(String.format("[validateOperation] Operator %s not compatible with operands %s and ", operator, firstOperand, secondOperand));
-                    return false;
-                }
-            }
-            case RELATIONAL: {
-                if (!fot.isNumeric()) {
-                    addSemanticError(String.format("[validateOperation] Operator %s not compatible with operands %s and ", operator, firstOperand, secondOperand));
-                    return false;
-                }
-            }
-        }
+        OperatorType opType = operator.getOperatorType();
 
+        return switch (opType) {
+            case ARITHMETIC, RELATIONAL ->
+                validateNumeric(fot, opType);
+            case LOGICAL ->
+                validateBoolean(fot);
+        };
+    }
+
+    private boolean validateNumeric(SymbolType type, OperatorType opType) {
+        if (!type.isNumeric()) {
+            return validateOperationError("%s operator requires numeric operands, got %s", opType, type);
+        }
         return true;
     }
 
-    private boolean isOperation() {
-        return operator == null && secondOperand == null;
-    }
-
-    private boolean isUnaryOperation() {
-        return secondOperand == null;
-    }
-
-    private boolean validateUnaryOperation() {
-        if (!operator.isUnaryCompatible()) {
-            addSemanticError(String.format("[validateUnaryOperation] Operator %s is not unary compatible", operator));
-            return false;
+    private boolean validateBoolean(SymbolType type) {
+        if (!type.isBoolean()) {
+            return validateOperationError("Logical operator requires boolean operands, got %s", type);
         }
-
-        SymbolType fot = firstOperand.getType();
-
-        if (!fot.isUnaryCompatible()) {
-            addSemanticError(String.format("[validateUnaryOperation] Operand %s is not unary compatible", firstOperand));
-            return false;
-        }
-
-        switch (operator.getOperatorType()) {
-            case ARITHMETIC: {
-                if (!fot.isNumeric()) {
-                    addSemanticError(String.format("[validateUnaryOperation] Operator %s not compatible with operand %s", operator, firstOperand));
-                    return false;
-                }
-            }
-            case LOGICAL: {
-                if (!fot.isBoolean()) {
-                    addSemanticError(String.format("[validateUnaryOperation] Operator %s not compatible with operand %s", operator, firstOperand));
-                    return false;
-                }
-            }
-        }
-
         return true;
+    }
+
+    private boolean validateOperationError(String message, Object... args) {
+        String formatted = String.format(message, args);
+        ErrorManager.semantic(this, "[validateOperation] " + formatted);
+        return false;
     }
 
     public void computeOperationType() {
-        if (!isOperation()) {  // Solo un operando (paréntesis)
-            this.type.setType(firstOperand.getType().getType());
+        if (kind == OperationKind.PARENTHESIS) {
+            type.setType(firstOperand.getType().getType());
             return;
         }
 
         if (!validateOperation()) {
             return;
         }
-        SymbolType.typesEnum fot = firstOperand.getType().getType();
 
-        switch (operator.getOperatorType()) {
-            case ARITHMETIC, LOGICAL -> this.type.setType(fot);
-            case RELATIONAL -> this.type.setType(SymbolType.typesEnum.Boolean);
-        }
+        type.setType(kind == OperationKind.UNARY
+                ? firstOperand.getType().getType()
+                : inferBinaryResultType());
     }
 
-    private void addSemanticError(String message) {
-        ErrorManager.semantic(this, message);
+    private SymbolType.Type inferBinaryResultType() {
+        return operator.getOperatorType() == OperatorType.RELATIONAL
+                ? SymbolType.Type.BOOLEAN
+                : firstOperand.getType().getType();
+    }
+
+    private enum OperationKind {
+        PARENTHESIS, UNARY, BINARY
     }
 }

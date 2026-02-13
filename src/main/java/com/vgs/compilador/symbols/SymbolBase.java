@@ -11,6 +11,10 @@ public class SymbolBase extends ComplexSymbol {
 
     private static int idAutoIncrement = 0;
 
+    public SymbolBase(String name) {
+        super(name, idAutoIncrement++);
+    }
+    
     public SymbolBase(String name, Location left, Location right) {
         super(name, idAutoIncrement++, left, right);
     }

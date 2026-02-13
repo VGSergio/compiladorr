@@ -1,7 +1,6 @@
 package com.vgs.compilador.symbols;
 
-import com.vgs.compilador.symbols.value.SymbolValue;
-import com.vgs.compilador.symbols.value.operation.SymbolOperation;
+import com.vgs.compilador.symbols.instruction.SymbolInstructions;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
@@ -10,14 +9,14 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  */
 public class SymbolMain extends SymbolBase {
 
-    private final SymbolValue instructions;
+    private final SymbolInstructions instructions;
 
-    public SymbolMain(SymbolValue instructions, Location left, Location right) {
+    public SymbolMain(SymbolInstructions instructions, Location left, Location right) {
         super("Main", left, right);
         this.instructions = instructions;
     }
 
-    public SymbolValue getInstructions() {
+    public SymbolInstructions getInstructions() {
         return instructions;
     }
 }

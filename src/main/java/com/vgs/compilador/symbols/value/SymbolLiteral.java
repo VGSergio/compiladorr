@@ -5,6 +5,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
 /**
  *
  * @author sergi
+ * @param <T>
  */
 public class SymbolLiteral<T> extends SymbolValue<T> {
 
@@ -12,23 +13,27 @@ public class SymbolLiteral<T> extends SymbolValue<T> {
         super(name, type, value, left, right);
     }
 
+    public static <T> SymbolLiteral<T> create(T value, SymbolType type, Location left, Location right) {
+        return new SymbolLiteral<>(type.getType().name(), type, value, left, right);
+    }
+
     public static SymbolLiteral<Integer> createInteger(Integer value, Location left, Location right) {
-        return new SymbolLiteral<>("Integer", SymbolType.INTEGER(left, right), value, left, right);
+        return create(value, SymbolType.INTEGER(left, right), left, right);
     }
 
     public static SymbolLiteral<Double> createDouble(Double value, Location left, Location right) {
-        return new SymbolLiteral<>("Double", SymbolType.DOUBLE(left, right), value, left, right);
+        return create(value, SymbolType.DOUBLE(left, right), left, right);
     }
 
     public static SymbolLiteral<Boolean> createBoolean(Boolean value, Location left, Location right) {
-        return new SymbolLiteral<>("Boolean", SymbolType.BOOLEAN(left, right), value, left, right);
+        return create(value, SymbolType.BOOLEAN(left, right), left, right);
     }
 
     public static SymbolLiteral<Character> createChar(Character value, Location left, Location right) {
-        return new SymbolLiteral<>("Character", SymbolType.CHARACTER(left, right), value, left, right);
+        return create(value, SymbolType.CHARACTER(left, right), left, right);
     }
 
     public static SymbolLiteral<String> createString(String value, Location left, Location right) {
-        return new SymbolLiteral<>("String", SymbolType.STRING(left, right), value, left, right);
+        return create(value, SymbolType.STRING(left, right), left, right);
     }
 }

@@ -100,7 +100,7 @@ precedence right    NOT;            // Nivel 15 de precedencia
 start with main;
 
 main ::=
-    MAIN:v1 LPAREN RPAREN LBRACKET instructions:v2 RBRACKET  {: RESULT = new SymbolMain(v2, v1xleft, v1xright); :}
+    instructions:v1  {: RESULT = new SymbolMain(v1, v1xleft, v1xright); :}
 ;
 
 instructions::=
@@ -140,7 +140,7 @@ logicalAndOperation ::=
 
 equalityOperation ::=
     equalityOperation:v1 EQ:v2 relationalOperation:v3
-        {: RESULT = new SymbolOperation(v1, new SymbolOperator(Operator.EQ, v2xleft, v2xright), v3, v1xleft, v1xright); :}
+        {: RESULT = new SymbolOperation(v1, new SymbolOperator(Operator.NE, v2xleft, v2xright), v3, v1xleft, v1xright); :}
 |   equalityOperation:v1 NE:v2 relationalOperation:v3
         {: RESULT = new SymbolOperation(v1, new SymbolOperator(Operator.NE, v2xleft, v2xright), v3, v1xleft, v1xright); :}
 |   relationalOperation:v1

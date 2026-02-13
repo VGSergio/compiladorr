@@ -88,6 +88,7 @@ public class Main {
         } catch (FileNotFoundException e) {
             System.err.println("Archivo no encontrado: " + file_path);
         } catch (Exception e) {
+            System.err.println(e.getMessage());
             System.err.println("Error analizando el archivo: " + file_path);
         }
         return (SymbolMain) symbolMain;

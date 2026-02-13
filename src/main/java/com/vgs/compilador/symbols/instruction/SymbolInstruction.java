@@ -9,7 +9,10 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  */
 public class SymbolInstruction extends SymbolBase {
 
-    public SymbolInstruction(String name, Location left, Location right) {
-        super(name, left, right);
+    private SymbolBase instruction;
+
+    public SymbolInstruction(SymbolBase instruction, Location left, Location right) {
+        super("Instruction", left, right);
+        this.instruction = instruction;
     }
 }

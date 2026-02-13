@@ -8,7 +8,7 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  * @author sergi
  * @param <T>
  */
-public abstract class SymbolValue<T extends Object> extends SymbolBase {
+public abstract class SymbolValue<T> extends SymbolBase {
 
     protected SymbolType type;
 
