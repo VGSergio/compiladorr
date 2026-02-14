@@ -5,6 +5,7 @@ import com.vgs.compilador.symbols.SymbolBase;
 import com.vgs.compilador.symbols.SymbolMain;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
+import com.vgs.compilador.symbols.instruction.SymbolVariableInitialization;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
 import com.vgs.compilador.symbols.value.SymbolValue;
 import com.vgs.compilador.symbols.value.operation.SymbolOperation;
@@ -25,8 +26,7 @@ public class TypeChecker {
 
         for (SymbolInstructions instructions = main.getInstructions(); instructions != null; instructions = instructions.getNextInstructions()) {
             SymbolInstruction actualInstruction = instructions.getActualInstruction();
-            manage(actualInstruction.getInstruction());
-//            manage(actualInstruction);
+            manage(actualInstruction);
         }
     }
 
@@ -50,8 +50,8 @@ public class TypeChecker {
      */
     private void manage(SymbolInstruction instruction) {
         switch (instruction) {
-
-//            case SymbolVariableInitialization i -> manage(i);
+            case SymbolVariableInitialization i ->
+                manage(i);
 //            case SymbolAssignValue i -> manage(i);
 //            case SymbolIf i -> manage(i);
 //            case SymbolSwitch i -> manage(i);
@@ -62,33 +62,24 @@ public class TypeChecker {
 //            case SymbolInput i -> manage(i);
 //            case SymbolPrint i -> manage(i);
 //            case SymbolBreak i -> manage(i);
-            case SymbolBase i ->
-                manage(i);
-//            default ->
-//                ErrorManager.semantic(instruction, String.format("[SymbolInstruction] Unhandled Symbol instance %s", instruction.getClass().getSimpleName()));
+            default ->
+                ErrorManager.semantic(instruction, String.format("[SymbolInstruction] Unhandled Symbol instance %s", instruction.getClass().getSimpleName()));
         }
     }
 
     /**
-     * Comprobaciones: 1. No hace falta comprobar nada.
+     * Comprobaciones: TODO: 1. Comprobar que no exista la variable. 2.
+     * Comprobar que el tipo de variable y su valor coinciden.
      */
-    private void manage(SymbolBase instruction) {
-        switch (instruction) {
-//            case SymbolVariableInitialization i -> manage(i);
-//            case SymbolAssignValue i -> manage(i);
-//            case SymbolIf i -> manage(i);
-//            case SymbolSwitch i -> manage(i);
-//            case SymbolFor i -> manage(i);
-//            case SymbolWhile i -> manage(i);
-//            case SymbolFunction i -> manage(i);
-//            case SymbolFunctionCall i -> manage(i);
-//            case SymbolInput i -> manage(i);
-//            case SymbolPrint i -> manage(i);
-//            case SymbolBreak i -> manage(i);
-            case SymbolOperation i ->
-                manage(i);
-            default ->
-                ErrorManager.semantic(instruction, String.format("[SymbolBase] Unhandled Symbol instance %s", instruction.getClass().getSimpleName()));
+    private void manage(SymbolVariableInitialization instruction) {
+        // 1. Comprobar que no exista la variable.
+
+        manage(instruction.getValue());
+
+        // 2. Comprobar que el tipo de variable y su valor coinciden.
+        if (!instruction.getType().equals(instruction.getValue().getType())) {
+            ErrorManager.semantic(instruction, String.format("[SymbolVariableInitialization] Type mismatch: %s and %s", instruction.getType(), instruction.getValue().getType()));
+            return;
         }
     }
 
@@ -99,7 +90,6 @@ public class TypeChecker {
         switch (instruction) {
             case null -> {
             }
-
 //            case SymbolVariableInitialization i -> manage(i);
 //            case SymbolAssignValue i -> manage(i);
 //            case SymbolIf i -> manage(i);

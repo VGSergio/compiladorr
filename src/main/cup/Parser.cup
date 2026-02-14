@@ -4,7 +4,9 @@ import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.symbols.SymbolMain;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
+import com.vgs.compilador.symbols.instruction.SymbolVariableInitialization;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
+import com.vgs.compilador.symbols.value.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
 import com.vgs.compilador.symbols.value.operation.SymbolOperation;
 import com.vgs.compilador.symbols.value.operation.SymbolOperator;
@@ -76,13 +78,15 @@ terminal        String      STRING_LITERAL;
 terminal        String      IDENTIFIER;
 
 // Simbolos no terminales
-nonterminal     SymbolMain                  main;
-nonterminal     SymbolInstructions          instructions;
-nonterminal     SymbolInstruction           instruction;
-nonterminal     SymbolValue                 value, operand, literal, variable, functionCall;
-nonterminal     SymbolOperation             logicalOrOperation, logicalXorOperation, logicalAndOperation;
-nonterminal     SymbolOperation             equalityOperation, relationalOperation, unaryOperation;
-nonterminal     SymbolOperation             additiveOperation, multiplicativeOperation;
+nonterminal     SymbolMain                      main;
+nonterminal     SymbolInstructions              instructions;
+nonterminal     SymbolInstruction               instruction;
+nonterminal     SymbolVariableInitialization    variableInitialization;
+nonterminal     SymbolType                      variableType;
+nonterminal     SymbolValue                     value, operand, literal, variable, functionCall;
+nonterminal     SymbolOperation                 logicalOrOperation, logicalXorOperation, logicalAndOperation;
+nonterminal     SymbolOperation                 equalityOperation, relationalOperation, unaryOperation;
+nonterminal     SymbolOperation                 additiveOperation, multiplicativeOperation;
 
 
 // Precedendias, de menos a más
@@ -109,7 +113,26 @@ instructions::=
 ;
 
 instruction ::=
-    value:v1 SEMICOLON                      {: RESULT = new SymbolInstruction(v1, v1xleft, v1xright); :}
+    variableInitialization:v1 SEMICOLON     {: RESULT = v1; :}
+|   error SEMICOLON:v1                      {: RESULT = new SymbolInstruction("Error", v1xleft, v1xright); :}
+|   error RBRACKET:v1                       {: RESULT = new SymbolInstruction("Error", v1xleft, v1xright); :}
+;
+
+variableInitialization ::=
+    FINAL variableType:v1 IDENTIFIER:v2 ASSIGN value:v3
+        {: RESULT = new SymbolVariableInitialization(true, v1, v2, v3, v1xleft, v1xright); :}
+|   variableType:v1 IDENTIFIER:v2 ASSIGN value:v3
+        {: RESULT = new SymbolVariableInitialization(false, v1, v2, v3, v1xleft, v1xright); :}
+|   variableType:v1 IDENTIFIER:v2
+        {: RESULT = new SymbolVariableInitialization(v1, v2, v1xleft, v1xright); :}
+;
+
+variableType ::= 
+    INT:v1      {: RESULT = SymbolType.INTEGER(v1xleft, v1xright); :}
+|   DOUBLE:v1   {: RESULT = SymbolType.DOUBLE(v1xleft, v1xright); :}
+|   BOOLEAN:v1  {: RESULT = SymbolType.BOOLEAN(v1xleft, v1xright); :}
+|   CHAR:v1     {: RESULT = SymbolType.CHARACTER(v1xleft, v1xright); :}
+|   STRING:v1   {: RESULT = SymbolType.STRING(v1xleft, v1xright); :}
 ;
 
 value ::=
