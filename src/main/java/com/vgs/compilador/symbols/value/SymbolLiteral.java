@@ -9,12 +9,12 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  */
 public class SymbolLiteral<T> extends SymbolValue<T> {
 
-    private SymbolLiteral(String name, SymbolType type, T value, Location left, Location right) {
-        super(name, type, value, left, right);
+    private SymbolLiteral(SymbolType type, T value, Location left, Location right) {
+        super(type.getType().name(), type, value, left, right);
     }
 
     public static <T> SymbolLiteral<T> create(T value, SymbolType type, Location left, Location right) {
-        return new SymbolLiteral<>(type.getType().name(), type, value, left, right);
+        return new SymbolLiteral<>(type, value, left, right);
     }
 
     public static SymbolLiteral<Integer> createInteger(Integer value, Location left, Location right) {

@@ -56,12 +56,12 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
 
     private boolean validateUnary() {
         if (!operator.isUnaryCompatible()) {
-            return validateOperationError("Operator %s is not unary compatible", operator);
+            return validateOperationError("validateUnary", "Operator %s is not unary compatible", operator);
         }
 
         SymbolType fot = firstOperand.getType();
         if (!fot.isUnaryCompatible()) {
-            return validateOperationError("Operand %s is not unary compatible", fot);
+            return validateOperationError("validateUnary", "Operand %s is not unary compatible", fot);
         }
 
         OperatorType opType = operator.getOperatorType();
@@ -71,17 +71,13 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
             case LOGICAL ->
                 validateBoolean(fot);
             default ->
-                validateOperationError("Operator %s cannot be unary", operator);
+                validateOperationError("validateUnary", "Operator %s cannot be unary", operator);
         };
     }
 
     private boolean validateBinary() {
-        if (firstOperand == null || secondOperand == null || operator == null) {
-            return validateOperationError("Invalid binary operation: missing operand or operator");
-        }
-
         if (!firstOperand.getType().equals(secondOperand.getType())) {
-            return validateOperationError("Type mismatch: %s and %s", firstOperand.getType(), secondOperand.getType());
+            return validateOperationError("validateBinary", "Type mismatch: %s and %s", firstOperand.getType(), secondOperand.getType());
         }
 
         SymbolType fot = firstOperand.getType();
@@ -97,21 +93,20 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
 
     private boolean validateNumeric(SymbolType type, OperatorType opType) {
         if (!type.isNumeric()) {
-            return validateOperationError("%s operator requires numeric operands, got %s", opType, type);
+            return validateOperationError("validateNumeric", "%s operator requires numeric operands, got %s", opType, type);
         }
         return true;
     }
 
     private boolean validateBoolean(SymbolType type) {
         if (!type.isBoolean()) {
-            return validateOperationError("Logical operator requires boolean operands, got %s", type);
+            return validateOperationError("validateBoolean", "Logical operator requires boolean operands, got %s", type);
         }
         return true;
     }
 
-    private boolean validateOperationError(String message, Object... args) {
-        String formatted = String.format(message, args);
-        ErrorManager.semantic(this, "[validateOperation] " + formatted);
+    private boolean validateOperationError(String context, String message, Object... args) {
+        ErrorManager.semantic(this, String.format("[%s] %s", context, String.format(message, args)));
         return false;
     }
 
@@ -139,4 +134,29 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
     private enum OperationKind {
         PARENTHESIS, UNARY, BINARY
     }
+
+    public SymbolValue getFirstOperand() {
+        return firstOperand;
+    }
+
+    public SymbolOperator getOperator() {
+        return operator;
+    }
+
+    public SymbolValue getSecondOperand() {
+        return secondOperand;
+    }
+
+    @Override
+    public String toString() {
+        return switch (kind) {
+            case PARENTHESIS ->
+                String.format("(%s)", firstOperand);
+            case UNARY ->
+                String.format("(%s%s)", operator, firstOperand);
+            case BINARY ->
+                String.format("(%s %s %s)", firstOperand, operator, secondOperand);
+        };
+    }
+
 }

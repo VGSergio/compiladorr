@@ -2,6 +2,7 @@ package com.vgs.compilador;
 
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.manager.TokenManager;
+import com.vgs.compilador.semantic.TypeChecker;
 import com.vgs.compilador.symbols.SymbolMain;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -52,8 +53,9 @@ public class Main {
             return false;
         }
 
-//        TypeChecker semanticAnalyzer = new TypeChecker();
-//        semanticAnalyzer.manage(symbolMain);
+        TypeChecker semanticAnalyzer = new TypeChecker();
+        semanticAnalyzer.manage(symbolMain);
+        
         if (ErrorManager.hasSemanticErrors()) {
             System.err.println("No es posible generar el c3@ | El código tiene errores semánticos");
             return false;

@@ -39,4 +39,8 @@ public abstract class SymbolValue<T> extends SymbolBase {
         this.value = value;
     }
 
+    @Override
+    public String toString() {
+        return ((T) value).toString();
+    }
 }

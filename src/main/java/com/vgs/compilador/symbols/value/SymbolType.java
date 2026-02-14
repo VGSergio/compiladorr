@@ -1,6 +1,7 @@
 package com.vgs.compilador.symbols.value;
 
 import com.vgs.compilador.symbols.SymbolBase;
+import java.util.Objects;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
@@ -29,15 +30,15 @@ public class SymbolType extends SymbolBase {
     }
 
     public static SymbolType CHARACTER(Location left, Location right) {
-        return new SymbolType(Type.Char, left, right);
+        return new SymbolType(Type.CHARACTER, left, right);
     }
 
     public static SymbolType STRING(Location left, Location right) {
-        return new SymbolType(Type.String, left, right);
+        return new SymbolType(Type.STRING, left, right);
     }
 
     public static SymbolType VOID(Location left, Location right) {
-        return new SymbolType(Type.Void, left, right);
+        return new SymbolType(Type.VOID, left, right);
     }
 
     public Type getType() {
@@ -61,15 +62,15 @@ public class SymbolType extends SymbolBase {
     }
 
     public boolean isChar() {
-        return type == Type.Char;
+        return type == Type.CHARACTER;
     }
 
     public boolean isString() {
-        return type == Type.String;
+        return type == Type.STRING;
     }
 
     public boolean isVoid() {
-        return type == Type.Void;
+        return type == Type.VOID;
     }
 
     public boolean isNumeric() {
@@ -80,7 +81,32 @@ public class SymbolType extends SymbolBase {
         return isNumeric() || isBoolean();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        SymbolType other = (SymbolType) obj;
+        return this.type == other.type;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return type.toString();
+    }
+
     public enum Type {
-        INTEGER, DOUBLE, BOOLEAN, Char, String, Void
+        INTEGER, DOUBLE, BOOLEAN, CHARACTER, STRING, VOID
     }
 }
