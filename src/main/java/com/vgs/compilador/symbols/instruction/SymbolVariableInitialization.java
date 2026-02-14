@@ -15,7 +15,6 @@ public class SymbolVariableInitialization extends SymbolInstruction {
     private final String identifier;
     private final SymbolValue<?> value;
 
-//    private SymbolVariable variable; // Referencia a la variable, análisis semántico
     // Constructor sin valor
     public SymbolVariableInitialization(SymbolType type, String identifier, Location left, Location right) {
         super("VariableInitialization", left, right);

@@ -50,10 +50,6 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
         this.type = SymbolType.VOID(left, right);
     }
 
-    private boolean validateOperation() {
-        return kind == OperationKind.UNARY ? validateUnary() : validateBinary();
-    }
-
     private boolean validateUnary() {
         if (!operator.isUnaryCompatible()) {
             return validateOperationError("validateUnary", "Operator %s is not unary compatible", operator);
@@ -111,26 +107,31 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
     }
 
     public boolean computeOperationType() {
-        if (kind == OperationKind.PARENTHESIS) {
-            type.setType(firstOperand.getType().getType());
-            return true;
+        switch (kind) {
+            case PARENTHESIS -> {
+                type = firstOperand.getType();
+                return true;
+            }
+            case UNARY -> {
+                if (!validateUnary()) {
+                    return false;
+                }
+                type = firstOperand.getType();
+                return true;
+            }
+            case BINARY -> {
+                if (!validateBinary()) {
+                    return false;
+                }
+                type = operator.getOperatorType() == OperatorType.RELATIONAL
+                        ? SymbolType.BOOLEAN(getLeft(), getRight()) // Necesitas Location
+                        : firstOperand.getType();
+                return true;
+            }
+            default -> {
+                return false;
+            }
         }
-
-        if (!validateOperation()) {
-            return false;
-        }
-
-        type.setType(kind == OperationKind.UNARY
-                ? firstOperand.getType().getType()
-                : inferBinaryResultType());
-        
-        return true;
-    }
-
-    private SymbolType.Type inferBinaryResultType() {
-        return operator.getOperatorType() == OperatorType.RELATIONAL
-                ? SymbolType.Type.BOOLEAN
-                : firstOperand.getType().getType();
     }
 
     private enum OperationKind {
