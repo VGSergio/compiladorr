@@ -110,19 +110,21 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
         return false;
     }
 
-    public void computeOperationType() {
+    public boolean computeOperationType() {
         if (kind == OperationKind.PARENTHESIS) {
             type.setType(firstOperand.getType().getType());
-            return;
+            return true;
         }
 
         if (!validateOperation()) {
-            return;
+            return false;
         }
 
         type.setType(kind == OperationKind.UNARY
                 ? firstOperand.getType().getType()
                 : inferBinaryResultType());
+        
+        return true;
     }
 
     private SymbolType.Type inferBinaryResultType() {
@@ -151,7 +153,7 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
     public String toString() {
         return switch (kind) {
             case PARENTHESIS ->
-                String.format("(%s)", firstOperand);
+                String.format("%s", firstOperand);
             case UNARY ->
                 String.format("(%s%s)", operator, firstOperand);
             case BINARY ->

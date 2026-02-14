@@ -12,7 +12,7 @@ public abstract class SymbolValue<T> extends SymbolBase {
 
     protected SymbolType type;
 
-    // Operaciones
+    // Operaciones y acceso a variables
     public SymbolValue(String name, Location left, Location right) {
         super(name, left, right);
     }

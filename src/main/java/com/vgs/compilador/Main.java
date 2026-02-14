@@ -2,7 +2,7 @@ package com.vgs.compilador;
 
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.manager.TokenManager;
-import com.vgs.compilador.semantic.TypeChecker;
+import com.vgs.compilador.semantic.SemanticAnalyzer;
 import com.vgs.compilador.symbols.SymbolMain;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -53,7 +53,7 @@ public class Main {
             return false;
         }
 
-        TypeChecker semanticAnalyzer = new TypeChecker();
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
         semanticAnalyzer.manage(symbolMain);
         
         if (ErrorManager.hasSemanticErrors()) {

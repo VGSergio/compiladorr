@@ -8,9 +8,13 @@ import com.vgs.compilador.symbols.instruction.SymbolVariableInitialization;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
 import com.vgs.compilador.symbols.value.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
+import com.vgs.compilador.symbols.value.access.SymbolAccess;
+import com.vgs.compilador.symbols.value.access.SymbolArrayAccess;
+import com.vgs.compilador.symbols.value.access.SymbolVariableAccess;
 import com.vgs.compilador.symbols.value.operation.SymbolOperation;
 import com.vgs.compilador.symbols.value.operation.SymbolOperator;
 import com.vgs.compilador.symbols.value.operation.SymbolOperator.Operator;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java_cup.runtime.Symbol;
 import java_cup.runtime.ComplexSymbolFactory;
@@ -87,6 +91,8 @@ nonterminal     SymbolValue                     value, operand, literal, variabl
 nonterminal     SymbolOperation                 logicalOrOperation, logicalXorOperation, logicalAndOperation;
 nonterminal     SymbolOperation                 equalityOperation, relationalOperation, unaryOperation;
 nonterminal     SymbolOperation                 additiveOperation, multiplicativeOperation;
+nonterminal     SymbolAccess                    access;
+nonterminal     ArrayList<SymbolValue>          arrayIndexes;
 
 
 // Precedendias, de menos a más
@@ -214,9 +220,11 @@ unaryOperation ::=
 
 operand ::=
     LPAREN value:v1 RPAREN
-        {: RESULT = v1; :}
+        {: RESULT = v1; :}  // Valores a calcular
 |   literal:v1
-        {: RESULT = v1; :}
+        {: RESULT = v1; :}  // Valores constantes
+|   access:v1
+        {: RESULT = v1; :}  // Valores a buscar
 ;
 
 literal ::=
@@ -225,4 +233,9 @@ literal ::=
 |   BOOLEAN_LITERAL:v1          {: RESULT = SymbolLiteral.createBoolean(v1, v1xleft, v1xright); :}
 |   CHAR_LITERAL:v1             {: RESULT = SymbolLiteral.createChar(v1, v1xleft, v1xright); :}
 |   STRING_LITERAL:v1           {: RESULT = SymbolLiteral.createString(v1, v1xleft, v1xright); :}
+;
+
+access ::=
+    IDENTIFIER:v1 
+        {: RESULT = new SymbolVariableAccess(v1, v1xleft, v1xright); :}
 ;

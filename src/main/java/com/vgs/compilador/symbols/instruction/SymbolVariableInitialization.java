@@ -33,6 +33,10 @@ public class SymbolVariableInitialization extends SymbolInstruction {
         this.value = value;
     }
 
+    public boolean isFinal() {
+        return isFinal;
+    }
+
     public SymbolType getType() {
         return type;
     }
