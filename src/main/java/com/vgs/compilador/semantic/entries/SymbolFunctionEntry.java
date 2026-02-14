@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class SymbolFunctionEntry extends SymbolEntry {
 
     public SymbolFunctionEntry(String name, SymbolType type, SymbolBase declaration, EntryKind kind) {
-        super(name, type, declaration, kind);
+        super(name, type, kind, declaration);
     }
 
 //    private final ArrayList<SymbolParameter> parameters;

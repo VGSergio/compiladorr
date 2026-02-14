@@ -11,14 +11,14 @@ public abstract class SymbolEntry {
 
     private final String id;                    // Nombre del identificador
     private final SymbolType type;              // Tipo asociado
-    private final SymbolBase declaration;       // Nodo AST donde se declaró
     private final EntryKind kind;               // Qué tipo de entrada es
+    private final SymbolBase declaration;       // Nodo AST donde se declaró
 
-    protected SymbolEntry(String id, SymbolType type, SymbolBase declaration, EntryKind kind) {
+    protected SymbolEntry(String id, SymbolType type, EntryKind kind, SymbolBase declaration) {
         this.id = id;
         this.type = type;
-        this.declaration = declaration;
         this.kind = kind;
+        this.declaration = declaration;
     }
 
     public String getId() {

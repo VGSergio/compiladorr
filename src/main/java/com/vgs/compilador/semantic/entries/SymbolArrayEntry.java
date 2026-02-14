@@ -14,7 +14,7 @@ public class SymbolArrayEntry extends SymbolEntry {
     private final int dimensionCount;          // Número de dimensiones
 
     public SymbolArrayEntry(String name, SymbolType arrayType, int[] dimensions, SymbolBase declaration) {
-        super(name, arrayType, declaration, EntryKind.ARRAY);
+        super(name, arrayType, EntryKind.ARRAY, declaration);
         this.dimensions = dimensions.clone();
         this.dimensionCount = dimensions.length;
         this.elementType = inferElementType(arrayType);

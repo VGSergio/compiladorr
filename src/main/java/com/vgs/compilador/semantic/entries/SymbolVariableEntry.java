@@ -15,7 +15,7 @@ public class SymbolVariableEntry extends SymbolEntry {
     private final boolean isConstant;
 
     public SymbolVariableEntry(SymbolVariableInitialization variable) {
-        super(variable.getIdentifier(), variable.getType(), variable, EntryKind.VARIABLE);
+        super(variable.getIdentifier(), variable.getType(), EntryKind.VARIABLE, variable);
         this.value = variable.getValue();
         this.isConstant = variable.isFinal();
     }

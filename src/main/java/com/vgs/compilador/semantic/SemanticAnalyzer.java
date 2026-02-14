@@ -76,14 +76,16 @@ public class SemanticAnalyzer {
             return;
         }
 
-        if (!manage(instruction.getValue())) {
-            return;
-        }
-
-        // 2. Comprobar que el tipo de variable y su valor coinciden.
-        if (!instruction.getType().equals(instruction.getValue().getType())) {
-            ErrorManager.semantic(instruction, String.format("[SymbolVariableInitialization] Type mismatch: %s and %s", instruction.getType(), instruction.getValue().getType()));
-            return;
+        SymbolValue value = instruction.getValue();
+        if (value != null) {
+            if (!manage(value)) {
+                return;
+            }
+            // 2. Comprobar que el tipo de variable y su valor coinciden.
+            if (!instruction.getType().equals(instruction.getValue().getType())) {
+                ErrorManager.semantic(instruction, String.format("[SymbolVariableInitialization] Type mismatch: %s and %s", instruction.getType(), instruction.getValue().getType()));
+                return;
+            }
         }
 
         // Añadimos la variable a la tabla de símbolos
@@ -146,12 +148,15 @@ public class SemanticAnalyzer {
             return false;
         }
         switch (instruction) {
-            case SymbolFunctionCall i ->
-                manage(i);
-            case SymbolArrayAccess i ->
-                manage(i);
-            case SymbolVariableAccess i ->
-                manage(i);
+            case SymbolFunctionCall i -> {
+                return manage(i);
+            }
+            case SymbolArrayAccess i -> {
+                return manage(i);
+            }
+            case SymbolVariableAccess i -> {
+                return manage(i);
+            }
             default -> {
                 ErrorManager.semantic(
                         instruction,
@@ -161,7 +166,6 @@ public class SemanticAnalyzer {
                 return false;
             }
         }
-        return true;
     }
 
     private boolean validateAccess(SymbolAccess instruction) {
@@ -201,20 +205,28 @@ public class SemanticAnalyzer {
     /**
      * Comprobaciones: 1. Comprobar que la variable existe.
      */
-    private void manage(SymbolFunctionCall instruction) {
+    private boolean manage(SymbolFunctionCall instruction) {
+        return true;
     }
 
     /**
      * Comprobaciones: 1. Comprobar que la variable existe.
      */
-    private void manage(SymbolArrayAccess instruction) {
+    private boolean manage(SymbolArrayAccess instruction) {
+        return true;
     }
 
     /**
      * Comprobaciones: 1. Comprobar que la variable existe.
      */
-    private void manage(SymbolVariableAccess instruction) {
-        SymbolEntry entry = symbolTable.getDescription(instruction.getIdentifier());
+    private boolean manage(SymbolVariableAccess instruction) {
+        SymbolVariableEntry entry = (SymbolVariableEntry) symbolTable.getDescription(instruction.getIdentifier());
+        if (!entry.hasValue()) {
+            ErrorManager.semantic(instruction, String.format("[SymbolVariableAccess] Variable %s value is null", entry.getId()));
+            return false;
+        }
         instruction.setType(entry.getType());
+        instruction.setValue(entry.getValue());
+        return true;
     }
 }
