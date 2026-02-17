@@ -1,0 +1,55 @@
+main(){
+    int integer_1 = 1;
+    int integer_2 = 2;
+
+    // Integer unary
+    int integer_neg = -integer_1;
+
+    // Integer arithmetic
+    int integer_add = integer_1 + integer_2;
+    int integer_sub = integer_1 - integer_2;
+    int integer_prod = integer_1 * integer_2;
+    int integer_div = integer_1 / integer_2;
+    int integer_mod = integer_1 % integer_2;
+
+    // Integer relational
+    boolean integer_eq = integer_1 == integer_2;
+    boolean integer_neq = integer_1 != integer_2;
+    boolean integer_gt = integer_1 > integer_2;
+    boolean integer_ge = integer_1 >= integer_2;
+    boolean integer_lt = integer_1 < integer_2;
+    boolean integer_le = integer_1 <= integer_2;
+
+
+    double double_1 = 1.0;
+    double double_2 = 2.0;
+
+    // Double unary
+    double double_neg = -double_1;
+
+    // Double arithmetic
+    double double_add = double_1 + double_2;
+    double double_sub = double_1 - double_2;
+    double double_prod = double_1 * double_2;
+    double double_div = double_1 / double_2;
+    double double_mod = double_1 % double_2;
+
+    // Double relational
+    boolean double_eq = double_1 == double_2;
+    boolean double_neq = double_1 != double_2;
+    boolean double_gt = double_1 > double_2;
+    boolean double_ge = double_1 >= double_2;
+    boolean double_lt = double_1 < double_2;
+    boolean double_le = double_1 <= double_2;
+    
+    boolean boolean_1 = true;    
+    boolean boolean_2 = false;
+
+    // Boolean unary
+    boolean boolean_not = !boolean_1;
+
+    // Boolean logical
+    boolean boolean_or = boolean_1 || boolean_2;
+    boolean boolean_and = boolean_1 && boolean_2;
+    boolean boolean_xor = boolean_1 ^ boolean_2;
+}

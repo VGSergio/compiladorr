@@ -1,0 +1,56 @@
+main(){
+    int sin_valor;
+    int integer_1 = 1;
+    double double_1 = 1.0;
+    boolean boolean_1 = true;
+    char character_1 = 'c';
+    String string_1 = "String";
+
+    // Incompatibilidad de tipos con int 
+    int operacion_1 = integer_1 + sin_valor;
+    int operacion_1 = integer_1 + double_1;
+    int operacion_1 = integer_1 + boolean_1;
+    int operacion_1 = integer_1 + character_1;
+    int operacion_1 = integer_1 + string_1;
+    double operacion_1 = integer_1 + integer_1;
+
+    // Incompatibilidad de tipos con double
+    int operacion_2 = double_1 + sin_valor;
+    int operacion_2 = double_1 + integer_1;
+    int operacion_2 = double_1 + boolean_1;
+    int operacion_2 = double_1 + character_1;
+    int operacion_2 = double_1 + string_1;
+    int operacion_2 = double_1 + double_1;
+
+    // Incompatibilidad de tipos con boolean
+    int operacion_3 = boolean_1 + sin_valor;
+    int operacion_3 = boolean_1 + integer_1;
+    int operacion_3 = boolean_1 + double_1;
+    int operacion_3 = boolean_1 + character_1;
+    int operacion_3 = boolean_1 + string_1;
+    int operacion_3 = boolean_1 && boolean_1;
+
+    // Incompatibilidad de tipos con char
+    int operacion_4 = character_1 + sin_valor;
+    int operacion_4 = character_1 + integer_1;
+    int operacion_4 = character_1 + double_1;
+    int operacion_4 = character_1 + boolean_1;
+    int operacion_4 = character_1 + character_1;
+    int operacion_4 = character_1 + string_1;
+
+    // Incompatibilidad de tipos con String
+    int operacion_5 = string_1 + sin_valor;
+    int operacion_4 = string_1 + integer_1;
+    int operacion_4 = string_1 + double_1;
+    int operacion_4 = string_1 + boolean_1;
+    int operacion_4 = string_1 + character_1;
+    int operacion_4 = string_1 + string_1;
+
+    // Incompatibilidad de operador con operandos
+    int operacion = -boolean_1;
+    boolean operacion = !integer_1;
+
+    int operacion = boolean_1 + boolean_1;
+    boolean operacion = integer_1 && integer_1;
+    boolean operacion = boolean_1 >= boolean_1;
+}

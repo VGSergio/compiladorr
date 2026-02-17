@@ -1,6 +1,6 @@
 package com.vgs.compilador.symbols.instruction.initialization;
 
-import com.vgs.compilador.symbols.aux.SymbolArrayIndexes;
+import com.vgs.compilador.symbols.helpers.SymbolArrayIndexes;
 import com.vgs.compilador.symbols.SymbolBase;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.type.SymbolType;

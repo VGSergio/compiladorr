@@ -3,7 +3,7 @@ package com.vgs.compilador.semantic;
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.semantic.entries.SymbolVariableEntry;
 import com.vgs.compilador.symbols.SymbolMain;
-import com.vgs.compilador.symbols.aux.SymbolArrayIndexes;
+import com.vgs.compilador.symbols.helpers.SymbolArrayIndexes;
 import com.vgs.compilador.symbols.instruction.initialization.SymbolArrayInitialization;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
