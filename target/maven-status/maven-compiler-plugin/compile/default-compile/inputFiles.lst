@@ -7,11 +7,14 @@ C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\comp
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\semantic\entries\SymbolVariableEntry.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\semantic\SemanticAnalyzer.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\semantic\SymbolTable.java
+C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\instruction\SymbolArrayInitialization.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\instruction\SymbolInstruction.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\instruction\SymbolInstructions.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\instruction\SymbolVariableInitialization.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\SymbolBase.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\SymbolMain.java
+C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\type\SymbolType.java
+C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\type\SymbolTypeArray.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\value\access\SymbolAccess.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\value\access\SymbolArrayAccess.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\value\access\SymbolFunctionCall.java
@@ -19,7 +22,6 @@ C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\comp
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\value\operation\SymbolOperation.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\value\operation\SymbolOperator.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\value\SymbolLiteral.java
-C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\value\SymbolType.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\src\main\java\com\vgs\compilador\symbols\value\SymbolValue.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\target\generated-sources\cup\com\vgs\compilador\Parser.java
 C:\Users\sergi\Documents\NetBeansProjects\compiladorr\target\generated-sources\cup\com\vgs\compilador\ParserSym.java

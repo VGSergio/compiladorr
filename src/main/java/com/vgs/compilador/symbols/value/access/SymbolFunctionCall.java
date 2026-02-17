@@ -1,7 +1,7 @@
 package com.vgs.compilador.symbols.value.access;
 
 import com.vgs.compilador.manager.ErrorManager;
-import com.vgs.compilador.symbols.value.SymbolType;
+import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
 import java.util.ArrayList;
 import java_cup.runtime.ComplexSymbolFactory.Location;

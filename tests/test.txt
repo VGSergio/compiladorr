@@ -1,6 +1,7 @@
 main(){
     int a = 3;
     int b = 3;
-    int c;
+    int c = 2;
     int d = a+b+c;
+    int[][][][] e;
 }

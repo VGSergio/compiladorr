@@ -2,11 +2,13 @@ package com.vgs.compilador;
 
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.symbols.SymbolMain;
+import com.vgs.compilador.symbols.instruction.SymbolArrayInitialization;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
 import com.vgs.compilador.symbols.instruction.SymbolVariableInitialization;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
-import com.vgs.compilador.symbols.value.SymbolType;
+import com.vgs.compilador.symbols.type.SymbolType;
+import com.vgs.compilador.symbols.type.SymbolTypeArray;
 import com.vgs.compilador.symbols.value.SymbolValue;
 import com.vgs.compilador.symbols.value.access.SymbolAccess;
 import com.vgs.compilador.symbols.value.access.SymbolArrayAccess;
@@ -87,11 +89,14 @@ nonterminal     SymbolInstructions              instructions;
 nonterminal     SymbolInstruction               instruction;
 nonterminal     SymbolVariableInitialization    variableInitialization;
 nonterminal     SymbolType                      variableType;
-nonterminal     SymbolValue                     value, operand, literal, variable, functionCall;
+nonterminal     SymbolValue                     value, operand, literal;
 nonterminal     SymbolOperation                 logicalOrOperation, logicalXorOperation, logicalAndOperation;
 nonterminal     SymbolOperation                 equalityOperation, relationalOperation, unaryOperation;
 nonterminal     SymbolOperation                 additiveOperation, multiplicativeOperation;
 nonterminal     SymbolAccess                    access;
+nonterminal     SymbolArrayInitialization       arrayInitialization;
+nonterminal     SymbolTypeArray                 arrayType;
+nonterminal     Integer                         arrayDims;
 nonterminal     ArrayList<SymbolValue>          arrayIndexes;
 
 
@@ -120,6 +125,7 @@ instructions::=
 
 instruction ::=
     variableInitialization:v1 SEMICOLON     {: RESULT = v1; :}
+|   arrayInitialization:v1 SEMICOLON        {: RESULT = v1; :}
 |   error SEMICOLON:v1                      {: RESULT = new SymbolInstruction("Error", v1xleft, v1xright); :}
 |   error RBRACKET:v1                       {: RESULT = new SymbolInstruction("Error", v1xleft, v1xright); :}
 ;
@@ -228,14 +234,40 @@ operand ::=
 ;
 
 literal ::=
-    INTEGER_LITERAL:v1          {: RESULT = SymbolLiteral.createInteger(v1, v1xleft, v1xright); :}
-|   DOUBLE_LITERAL:v1           {: RESULT = SymbolLiteral.createDouble(v1, v1xleft, v1xright); :}
-|   BOOLEAN_LITERAL:v1          {: RESULT = SymbolLiteral.createBoolean(v1, v1xleft, v1xright); :}
-|   CHAR_LITERAL:v1             {: RESULT = SymbolLiteral.createChar(v1, v1xleft, v1xright); :}
-|   STRING_LITERAL:v1           {: RESULT = SymbolLiteral.createString(v1, v1xleft, v1xright); :}
+    INTEGER_LITERAL:v1          {: RESULT = new SymbolLiteral(SymbolType.INTEGER(v1xleft, v1xright), v1, v1xleft, v1xright); :}
+|   DOUBLE_LITERAL:v1           {: RESULT = new SymbolLiteral(SymbolType.DOUBLE(v1xleft, v1xright), v1, v1xleft, v1xright); :}
+|   BOOLEAN_LITERAL:v1          {: RESULT = new SymbolLiteral(SymbolType.BOOLEAN(v1xleft, v1xright), v1, v1xleft, v1xright); :}
+|   CHAR_LITERAL:v1             {: RESULT = new SymbolLiteral(SymbolType.CHARACTER(v1xleft, v1xright), v1, v1xleft, v1xright); :}
+|   STRING_LITERAL:v1           {: RESULT = new SymbolLiteral(SymbolType.STRING(v1xleft, v1xright), v1, v1xleft, v1xright); :}
 ;
 
 access ::=
     IDENTIFIER:v1 
         {: RESULT = new SymbolVariableAccess(v1, v1xleft, v1xright); :}
+;
+
+arrayInitialization ::=
+    arrayType:v1 IDENTIFIER:v2
+        {: RESULT = new SymbolArrayInitialization(v1, v2, v1xleft, v1xright); :}
+// |   arrayType:v1 IDENTIFIER:v2 ASSIGN arrayDimensions:v3 
+//        {: RESULT = null; :}
+;
+
+arrayType ::=
+    variableType:v1 arrayDims:v2
+        {: RESULT = new SymbolTypeArray(v1, v2, v1xleft, v1xright); :}
+;
+
+arrayDims ::=
+    arrayDims:v1 LSQUARE RSQUARE 
+        {: RESULT = v1 + 1; :}
+|   LSQUARE RSQUARE 
+        {: RESULT = 1; :}
+;
+
+arrayIndexes ::=
+    arrayIndexes:v1 LSQUARE value:v2 RSQUARE 
+        {: v1.add(v2); RESULT = v1; :}
+|   LSQUARE value:v1 RSQUARE 
+        {: ArrayList<SymbolValue> lengths = new ArrayList<>(); lengths.add(v1); RESULT = lengths; :}
 ;

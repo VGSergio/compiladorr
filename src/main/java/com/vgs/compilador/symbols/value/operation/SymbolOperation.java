@@ -1,7 +1,7 @@
 package com.vgs.compilador.symbols.value.operation;
 
 import com.vgs.compilador.manager.ErrorManager;
-import com.vgs.compilador.symbols.value.SymbolType;
+import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
 import com.vgs.compilador.symbols.value.operation.SymbolOperator.OperatorType;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -52,12 +52,12 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
 
     private boolean validateUnary() {
         if (!operator.isUnaryCompatible()) {
-            return validateOperationError("validateUnary", "Operator %s is not unary compatible", operator);
+            return validateOperationError("validateUnary", String.format("Operator %s is not unary compatible", operator));
         }
 
         SymbolType fot = firstOperand.getType();
         if (!fot.isUnaryCompatible()) {
-            return validateOperationError("validateUnary", "Operand %s is not unary compatible", fot);
+            return validateOperationError("validateUnary", String.format("Operand %s is not unary compatible", fot));
         }
 
         OperatorType opType = operator.getOperatorType();
@@ -67,13 +67,13 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
             case LOGICAL ->
                 validateBoolean(fot);
             default ->
-                validateOperationError("validateUnary", "Operator %s cannot be unary", operator);
+                validateOperationError("validateUnary", String.format("Operator %s cannot be unary", operator));
         };
     }
 
     private boolean validateBinary() {
         if (!firstOperand.getType().equals(secondOperand.getType())) {
-            return validateOperationError("validateBinary", "Type mismatch: %s and %s", firstOperand.getType(), secondOperand.getType());
+            return validateOperationError("validateBinary", String.format("Type mismatch: %s and %s", firstOperand.getType(), secondOperand.getType()));
         }
 
         SymbolType fot = firstOperand.getType();
@@ -89,20 +89,20 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
 
     private boolean validateNumeric(SymbolType type, OperatorType opType) {
         if (!type.isNumeric()) {
-            return validateOperationError("validateNumeric", "%s operator requires numeric operands, got %s", opType, type);
+            return validateOperationError("validateNumeric", String.format("%s operator requires numeric operands, got %s", opType, type));
         }
         return true;
     }
 
     private boolean validateBoolean(SymbolType type) {
         if (!type.isBoolean()) {
-            return validateOperationError("validateBoolean", "Logical operator requires boolean operands, got %s", type);
+            return validateOperationError("validateBoolean", String.format("Logical operator requires boolean operands, got %s", type));
         }
         return true;
     }
 
-    private boolean validateOperationError(String context, String message, Object... args) {
-        ErrorManager.semantic(this, String.format("[%s] %s", context, String.format(message, args)));
+    private boolean validateOperationError(String context, String message) {
+        ErrorManager.semantic(this, String.format("[%s] %s", context, message));
         return false;
     }
 
@@ -124,7 +124,7 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
                     return false;
                 }
                 type = operator.getOperatorType() == OperatorType.RELATIONAL
-                        ? SymbolType.BOOLEAN(getLeft(), getRight()) // Necesitas Location
+                        ? SymbolType.BOOLEAN(getLeft(), getRight())
                         : firstOperand.getType();
                 return true;
             }

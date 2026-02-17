@@ -2,7 +2,7 @@ package com.vgs.compilador.semantic.entries;
 
 import com.vgs.compilador.symbols.SymbolBase;
 import com.vgs.compilador.symbols.instruction.SymbolVariableInitialization;
-import com.vgs.compilador.symbols.value.SymbolType;
+import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
 
 /**

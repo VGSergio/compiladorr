@@ -4,10 +4,12 @@ import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.semantic.entries.SymbolEntry;
 import com.vgs.compilador.semantic.entries.SymbolVariableEntry;
 import com.vgs.compilador.symbols.SymbolMain;
+import com.vgs.compilador.symbols.instruction.SymbolArrayInitialization;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
 import com.vgs.compilador.symbols.instruction.SymbolVariableInitialization;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
+import com.vgs.compilador.symbols.type.SymbolTypeArray;
 import com.vgs.compilador.symbols.value.SymbolValue;
 import com.vgs.compilador.symbols.value.access.SymbolAccess;
 import com.vgs.compilador.symbols.value.access.SymbolArrayAccess;
@@ -60,19 +62,21 @@ public class SemanticAnalyzer {
         switch (instruction) {
             case SymbolVariableInitialization i ->
                 manage(i);
+            case SymbolArrayInitialization i ->
+                manage(i);
             default ->
                 ErrorManager.semantic(instruction, String.format("[SymbolInstruction] Unhandled Symbol instance %s", instruction.getClass().getSimpleName()));
         }
     }
 
     /**
-     * Comprobaciones: 1. Comprobar que no exista la variable. 2. Comprobar que
+     * Comprobaciones: 1. Comprobar que el identificador este disponible. 2. Comprobar que
      * el tipo de variable y su valor coinciden.
      */
     private void manage(SymbolVariableInitialization instruction) {
-        // 1. Comprobar que no exista la variable.
+        // 1. Comprobar que el identificador este disponible.
         if (symbolTable.getDescription(instruction.getIdentifier()) != null) {
-            ErrorManager.semantic(instruction, String.format("[SymbolVariableInitialization] Variable: '%s' already exists at this level", instruction.getIdentifier()));
+            ErrorManager.semantic(instruction, String.format("[SymbolVariableInitialization] Identifier '%s' already in use at this level", instruction.getIdentifier()));
             return;
         }
 
@@ -228,5 +232,19 @@ public class SemanticAnalyzer {
         instruction.setType(entry.getType());
         instruction.setValue(entry.getValue());
         return true;
+    }
+
+    /**
+     * Comprobaciones: 1. Comprobar que el identificador este disponible.
+     */
+    private void manage(SymbolArrayInitialization instruction) {
+        // 1. Comprobar que el identificador este disponible.
+        if (symbolTable.getDescription(instruction.getIdentifier()) != null) {
+            ErrorManager.semantic(instruction, String.format("[SymbolArrayInitialization] Identifier '%s' already in use at this level", instruction.getIdentifier()));
+            return;
+        }
+
+        SymbolTypeArray type = instruction.getType();
+        String id = instruction.getIdentifier();
     }
 }

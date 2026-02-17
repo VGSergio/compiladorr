@@ -1,6 +1,6 @@
 package com.vgs.compilador.symbols.instruction;
 
-import com.vgs.compilador.symbols.value.SymbolType;
+import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
@@ -13,7 +13,6 @@ public class SymbolVariableInitialization extends SymbolInstruction {
     private final boolean isFinal;
     private final SymbolType type;
     private final String identifier;
-    private final SymbolValue<?> value;
 
     // Constructor sin valor
     public SymbolVariableInitialization(SymbolType type, String identifier, Location left, Location right) {
@@ -45,7 +44,7 @@ public class SymbolVariableInitialization extends SymbolInstruction {
     }
 
     public SymbolValue<?> getValue() {
-        return value;
+        return (SymbolValue<?>) value;
     }
 
     public boolean hasValue() {

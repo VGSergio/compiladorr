@@ -1,4 +1,4 @@
-package com.vgs.compilador.symbols.value;
+package com.vgs.compilador.symbols.type;
 
 import com.vgs.compilador.symbols.SymbolBase;
 import java.util.Objects;
@@ -12,7 +12,7 @@ public class SymbolType extends SymbolBase {
 
     private Type type;
 
-    private SymbolType(Type type, Location left, Location right) {
+    protected SymbolType(Type type, Location left, Location right) {
         super("Type", left, right);
         this.type = type;
     }
@@ -103,7 +103,20 @@ public class SymbolType extends SymbolBase {
 
     @Override
     public String toString() {
-        return type.toString();
+        return switch (type) {
+            case INTEGER ->
+                "int";
+            case DOUBLE ->
+                "double";
+            case BOOLEAN ->
+                "boolean";
+            case CHARACTER ->
+                "char";
+            case STRING ->
+                "String";
+            case VOID ->
+                "void";
+        };
     }
 
     public enum Type {
