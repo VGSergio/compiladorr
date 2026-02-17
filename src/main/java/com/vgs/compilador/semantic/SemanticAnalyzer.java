@@ -1,13 +1,14 @@
 package com.vgs.compilador.semantic;
 
 import com.vgs.compilador.manager.ErrorManager;
-import com.vgs.compilador.semantic.entries.SymbolEntry;
 import com.vgs.compilador.semantic.entries.SymbolVariableEntry;
 import com.vgs.compilador.symbols.SymbolMain;
-import com.vgs.compilador.symbols.instruction.SymbolArrayInitialization;
+import com.vgs.compilador.symbols.aux.SymbolArrayIndexes;
+import com.vgs.compilador.symbols.instruction.initialization.SymbolArrayInitialization;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
-import com.vgs.compilador.symbols.instruction.SymbolVariableInitialization;
+import com.vgs.compilador.symbols.instruction.initialization.SymbolVariableInitialization;
+import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
 import com.vgs.compilador.symbols.type.SymbolTypeArray;
 import com.vgs.compilador.symbols.value.SymbolValue;
@@ -16,6 +17,7 @@ import com.vgs.compilador.symbols.value.access.SymbolArrayAccess;
 import com.vgs.compilador.symbols.value.access.SymbolFunctionCall;
 import com.vgs.compilador.symbols.value.access.SymbolVariableAccess;
 import com.vgs.compilador.symbols.value.operation.SymbolOperation;
+import java.util.ArrayList;
 
 /**
  *
@@ -70,8 +72,8 @@ public class SemanticAnalyzer {
     }
 
     /**
-     * Comprobaciones: 1. Comprobar que el identificador este disponible. 2. Comprobar que
-     * el tipo de variable y su valor coinciden.
+     * Comprobaciones: 1. Comprobar que el identificador este disponible. 2.
+     * Comprobar que el tipo de variable y su valor coinciden.
      */
     private void manage(SymbolVariableInitialization instruction) {
         // 1. Comprobar que el identificador este disponible.
@@ -235,7 +237,9 @@ public class SemanticAnalyzer {
     }
 
     /**
-     * Comprobaciones: 1. Comprobar que el identificador este disponible.
+     * Comprobaciones: 1. Comprobar que el identificador este disponible. 2.
+     * Comprobar que el tipo coincide. 3. Comprobar que las dimensiones
+     * coinciden.
      */
     private void manage(SymbolArrayInitialization instruction) {
         // 1. Comprobar que el identificador este disponible.
@@ -246,5 +250,39 @@ public class SemanticAnalyzer {
 
         SymbolTypeArray type = instruction.getType();
         String id = instruction.getIdentifier();
+
+        SymbolArrayIndexes lengths = instruction.getLenghts();
+        if (lengths != null) {
+            if (!manage(lengths)) {
+                return;
+            }
+            // 2. Comprobar que el tipo coincide.
+            if (!instruction.getType().equals(lengths.getType())) {
+                ErrorManager.semantic(instruction, String.format("[SymbolArrayInitialization] Type mismatch: %s and %s", instruction.getType(), lengths.getType()));
+                return;
+            }
+            // 3. Comprobar que las dimensiones coinciden.
+            if (type.getNDims() != lengths.getDimensions()) {
+                ErrorManager.semantic(instruction, String.format("[SymbolArrayInitialization] Dimensions mismatch: %s and %s", type.getNDims(), lengths.getDimensions()));
+                return;
+            }
+        }
+    }
+
+    /**
+     * Comprobaciones: 1. Comprobar que el valor sea de tipo entero.
+     */
+    private boolean manage(SymbolArrayIndexes instruction) {
+        for (SymbolValue length : instruction.getLengths()) {
+            if (!manage(length)) {
+                return false;
+            }
+            // 1. Comprobar que el valor sea de tipo entero.
+            if (!length.getType().isInt()) {
+                ErrorManager.semantic(instruction, String.format("[SymbolArrayLengths] Array length must be integer, found %s", length.getType()));
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -3,5 +3,5 @@ main(){
     int b = 3;
     int c = 2;
     int d = a+b+c;
-    int[][][][] e;
+    int[][][][] e = new int[c][4][3][2];
 }

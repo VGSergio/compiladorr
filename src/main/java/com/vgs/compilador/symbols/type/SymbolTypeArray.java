@@ -21,10 +21,10 @@ public class SymbolTypeArray extends SymbolType {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < nDims; i++) {
-            sb.append("[]");
+        String baseType = super.toString();
+        if (nDims == 1) {
+            return baseType + "[]";
         }
-        return super.toString() + sb.toString();
+        return baseType + "[]".repeat(nDims);
     }
 }

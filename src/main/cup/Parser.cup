@@ -2,10 +2,11 @@ package com.vgs.compilador;
 
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.symbols.SymbolMain;
-import com.vgs.compilador.symbols.instruction.SymbolArrayInitialization;
+import com.vgs.compilador.symbols.aux.SymbolArrayIndexes;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
-import com.vgs.compilador.symbols.instruction.SymbolVariableInitialization;
+import com.vgs.compilador.symbols.instruction.initialization.SymbolArrayInitialization;
+import com.vgs.compilador.symbols.instruction.initialization.SymbolVariableInitialization;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
 import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.type.SymbolTypeArray;
@@ -247,8 +248,8 @@ access ::=
 ;
 
 arrayInitialization ::=
-    arrayType:v1 IDENTIFIER:v2
-        {: RESULT = new SymbolArrayInitialization(v1, v2, v1xleft, v1xright); :}
+    arrayType:v1 IDENTIFIER:v2 ASSIGN NEW variableType:v3 arrayIndexes:v4
+        {: RESULT = new SymbolArrayInitialization(v1, v2, new SymbolArrayIndexes(v3, v4, v3xleft, v3xright), v1xleft, v1xright); :}
 // |   arrayType:v1 IDENTIFIER:v2 ASSIGN arrayDimensions:v3 
 //        {: RESULT = null; :}
 ;

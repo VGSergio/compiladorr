@@ -42,7 +42,7 @@ public class SymbolType extends SymbolBase {
     }
 
     public Type getType() {
-        return this.type;
+        return type;
     }
 
     public void setType(Type type) {
@@ -74,11 +74,21 @@ public class SymbolType extends SymbolBase {
     }
 
     public boolean isNumeric() {
-        return isInt() || isDouble();
+        return switch (type) {
+            case INTEGER, DOUBLE ->
+                true;
+            default ->
+                false;
+        };
     }
 
     public boolean isUnaryCompatible() {
-        return isNumeric() || isBoolean();
+        return switch (type) {
+            case INTEGER, DOUBLE, BOOLEAN ->
+                true;
+            default ->
+                false;
+        };
     }
 
     @Override
@@ -86,19 +96,15 @@ public class SymbolType extends SymbolBase {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (!(obj instanceof SymbolType other)) {
             return false;
         }
-
-        SymbolType other = (SymbolType) obj;
         return this.type == other.type;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 29 * hash + Objects.hashCode(this.type);
-        return hash;
+        return Objects.hashCode(type);
     }
 
     @Override

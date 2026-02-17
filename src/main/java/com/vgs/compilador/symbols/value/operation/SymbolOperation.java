@@ -65,7 +65,7 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
             case ARITHMETIC ->
                 validateNumeric(fot, opType);
             case LOGICAL ->
-                validateBoolean(fot);
+                validateBoolean(fot, opType);
             default ->
                 validateOperationError("validateUnary", String.format("Operator %s cannot be unary", operator));
         };
@@ -83,7 +83,7 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
             case ARITHMETIC, RELATIONAL ->
                 validateNumeric(fot, opType);
             case LOGICAL ->
-                validateBoolean(fot);
+                validateBoolean(fot, opType);
         };
     }
 
@@ -94,9 +94,9 @@ public class SymbolOperation extends SymbolValue<SymbolValue> {
         return true;
     }
 
-    private boolean validateBoolean(SymbolType type) {
+    private boolean validateBoolean(SymbolType type, OperatorType opType) {
         if (!type.isBoolean()) {
-            return validateOperationError("validateBoolean", String.format("Logical operator requires boolean operands, got %s", type));
+            return validateOperationError("validateBoolean", String.format("%s operator requires boolean operands, got %s", opType, type));
         }
         return true;
     }

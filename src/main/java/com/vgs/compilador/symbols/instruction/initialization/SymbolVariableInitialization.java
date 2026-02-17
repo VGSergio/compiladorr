@@ -1,5 +1,6 @@
-package com.vgs.compilador.symbols.instruction;
+package com.vgs.compilador.symbols.instruction.initialization;
 
+import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolValue;
 import java_cup.runtime.ComplexSymbolFactory.Location;
