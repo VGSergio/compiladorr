@@ -19,6 +19,10 @@ public class SymbolArrayEntry extends SymbolEntry {
         this.lengths = lengths.clone();
     }
 
+    public int getDimensions() {
+        return dims;
+    }
+
     @Override
     public SymbolTypeArray getType() {
         return (SymbolTypeArray) type;

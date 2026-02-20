@@ -247,6 +247,8 @@ literal ::=
 access ::=
     IDENTIFIER:v1 
         {: RESULT = new SymbolVariableAccess(v1, v1xleft, v1xright); :}
+|   IDENTIFIER:v1 arrayIndexes:v2
+        {: RESULT = new SymbolArrayAccess(v1, v2, v1xleft, v1xright); :}
 ;
 
 arrayInitialization ::=

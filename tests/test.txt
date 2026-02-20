@@ -3,6 +3,9 @@ main(){
     int b = 3;
     int c = 2;
     int d = a+b+c;
-    int[][][][] e = new int[4][4][3][2];
-    int[][] f = {{1, 2, 4}, {3, 4, 1}, {5, 6, 9}};
+    String ga;
+    int[][] e = {{1, 2, 4}, {3, 4, 1}, {5, 6, 9}};
+    int f = e;
+    int f = e[2];
+    int f = e[2][2];
 }

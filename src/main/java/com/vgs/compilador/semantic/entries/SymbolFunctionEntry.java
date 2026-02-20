@@ -2,7 +2,6 @@ package com.vgs.compilador.semantic.entries;
 
 import com.vgs.compilador.symbols.SymbolBase;
 import com.vgs.compilador.symbols.type.SymbolType;
-import java.util.ArrayList;
 
 /**
  *

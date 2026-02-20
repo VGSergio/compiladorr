@@ -2,7 +2,9 @@ package com.vgs.compilador.semantic;
 
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.semantic.entries.SymbolArrayEntry;
+import com.vgs.compilador.semantic.entries.SymbolEntry;
 import com.vgs.compilador.semantic.entries.SymbolVariableEntry;
+import com.vgs.compilador.semantic.entries.SymbolFunctionEntry;
 import com.vgs.compilador.symbols.SymbolBase;
 import com.vgs.compilador.symbols.SymbolMain;
 import com.vgs.compilador.symbols.helpers.SymbolArrayIndexes;
@@ -183,61 +185,91 @@ public class SemanticAnalyzer {
             return false;
         }
 
-        String kind = switch (instruction) {
-            case SymbolFunctionCall i ->
-                "Function";
-            case SymbolArrayAccess i ->
-                "Array";
+        return switch (instruction) {
             case SymbolVariableAccess i ->
-                "Variable";
-            default ->
-                null;
+                validateEntry(i, SymbolVariableEntry.class, "Variable");
+            case SymbolArrayAccess i ->
+                validateEntry(i, SymbolArrayEntry.class, "Array");
+            case SymbolFunctionCall i ->
+                validateEntry(i, SymbolFunctionEntry.class, "Function");
+            default -> {
+                ErrorManager.semantic(instruction,
+                        "[validateAccess] Unhandled Symbol instance: " + instruction.getClass().getSimpleName());
+                yield false;
+            }
         };
+    }
 
-        if (kind == null) {
-            ErrorManager.semantic(
-                    instruction,
-                    "[validateAccess] Unhandled Symbol instance "
-                    + instruction.getClass().getSimpleName()
+    private <T extends SymbolEntry> boolean validateEntry(SymbolAccess instruction, Class<T> expectedClass, String kindName) {
+        String identifier = instruction.getIdentifier();
+        SymbolEntry entry = symbolTable.getDescription(identifier);
+
+        if (entry == null) {
+            ErrorManager.semantic(instruction, String.format("[SymbolAccess] %s '%s' does not exist", kindName, identifier));
+            return false;
+        }
+
+        if (!expectedClass.isInstance(entry)) {
+            String actualKind = getEntryKind(entry);
+            ErrorManager.semantic(instruction, String.format(
+                    "[SymbolAccess] Invalid %s access for %s '%s'",
+                    kindName.toLowerCase(), actualKind.toLowerCase(), identifier)
             );
             return false;
         }
 
-        String identifier = instruction.getIdentifier();
-        if (symbolTable.getDescription(identifier) == null) {
-            ErrorManager.semantic(instruction, String.format("[SymbolAccess] %s %s does not exist", kind, identifier));
-            return false;
-        }
-
         return true;
     }
 
-    /**
-     * Comprobaciones: 1. Comprobar que la variable existe.
-     */
-    private boolean manage(SymbolFunctionCall instruction) {
-        return true;
+    private String getEntryKind(SymbolEntry entry) {
+        return switch (entry) {
+            case SymbolFunctionEntry f ->
+                "Function";
+            case SymbolArrayEntry a ->
+                "Array";
+            case SymbolVariableEntry v ->
+                "Variable";
+            default ->
+                "Unknown";
+        };
     }
 
     /**
-     * Comprobaciones: 1. Comprobar que la variable existe.
-     */
-    private boolean manage(SymbolArrayAccess instruction) {
-        return true;
-    }
-
-    /**
-     * Comprobaciones: 1. Comprobar que la variable existe.
+     * Comprobaciones: 1. Comprobar que la variable este inicializada.
      */
     private boolean manage(SymbolVariableAccess instruction) {
         SymbolVariableEntry entry = (SymbolVariableEntry) symbolTable.getDescription(instruction.getIdentifier());
+
+        // 1. Comprobar que la variable este inicializada.
         if (!entry.hasValue()) {
             ErrorManager.semantic(instruction, String.format("[SymbolVariableAccess] Variable %s value is null", entry.getId()));
             return false;
         }
+
         instruction.setType(entry.getType());
         instruction.setValue(entry.getValue());
         return true;
+    }
+
+    /**
+     * Comprobaciones: 1. Comprobar que las dimensiones coinciden.
+     */
+    private boolean manage(SymbolArrayAccess instruction) {
+        SymbolArrayEntry description = (SymbolArrayEntry) symbolTable.getDescription(instruction.getIdentifier());
+        // 1. Comprobar que las dimensiones coinciden.
+        if (!validateDimensions(instruction, description.getDimensions(), instruction.getDimensions())) {
+            return false;
+        }
+
+        instruction.setType(description.getType());
+        return true;
+    }
+
+    /**
+     * Comprobaciones: 1. Comprobar que el número de parametros coincide.
+     */
+    private boolean manage(SymbolFunctionCall instruction) {
+        return false;
     }
 
     /**
@@ -266,10 +298,9 @@ public class SemanticAnalyzer {
         if (!validateType(instruction, type, instruction.getValueType())) {
             return;
         }
-        
+
         // 2. Comprobar que las dimensiones coinciden.
-        if (type.getNDims() != valueDims) {
-            ErrorManager.semantic(instruction, String.format("[SymbolArrayInitialization] Dimensions mismatch: %s and %s", type.getNDims(), valueDims));
+        if (!validateDimensions(instruction, type.getNDims(), valueDims)) {
             return;
         }
 
@@ -355,6 +386,14 @@ public class SemanticAnalyzer {
         }
 
         instruction.setType(firstType);
+        return true;
+    }
+
+    private boolean validateDimensions(SymbolBase instruction, int first, int second) {
+        if (first != second) {
+            ErrorManager.semantic(instruction, String.format("[%s] Dimensions mismatch: %s and %s", instruction.getClass().getSimpleName(), first, second));
+            return false;
+        }
         return true;
     }
 
