@@ -3,6 +3,7 @@ package com.vgs.compilador;
 import com.vgs.compilador.manager.ErrorManager;
 import com.vgs.compilador.symbols.SymbolMain;
 import com.vgs.compilador.symbols.helpers.SymbolArrayIndexes;
+import com.vgs.compilador.symbols.helpers.SymbolArrayValues;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
 import com.vgs.compilador.symbols.instruction.initialization.SymbolArrayInitialization;
@@ -90,7 +91,7 @@ nonterminal     SymbolInstructions              instructions;
 nonterminal     SymbolInstruction               instruction;
 nonterminal     SymbolVariableInitialization    variableInitialization;
 nonterminal     SymbolType                      variableType;
-nonterminal     SymbolValue                     value, operand, literal;
+nonterminal     SymbolValue                     value, operand, literal, arrayValue;
 nonterminal     SymbolOperation                 logicalOrOperation, logicalXorOperation, logicalAndOperation;
 nonterminal     SymbolOperation                 equalityOperation, relationalOperation, unaryOperation;
 nonterminal     SymbolOperation                 additiveOperation, multiplicativeOperation;
@@ -99,6 +100,7 @@ nonterminal     SymbolArrayInitialization       arrayInitialization;
 nonterminal     SymbolTypeArray                 arrayType;
 nonterminal     Integer                         arrayDims;
 nonterminal     ArrayList<SymbolValue>          arrayIndexes;
+nonterminal     SymbolArrayValues               arrayValuesInit, arrayValues;
 
 
 // Precedendias, de menos a más
@@ -235,11 +237,11 @@ operand ::=
 ;
 
 literal ::=
-    INTEGER_LITERAL:v1          {: RESULT = new SymbolLiteral(SymbolType.INTEGER(v1xleft, v1xright), v1, v1xleft, v1xright); :}
-|   DOUBLE_LITERAL:v1           {: RESULT = new SymbolLiteral(SymbolType.DOUBLE(v1xleft, v1xright), v1, v1xleft, v1xright); :}
-|   BOOLEAN_LITERAL:v1          {: RESULT = new SymbolLiteral(SymbolType.BOOLEAN(v1xleft, v1xright), v1, v1xleft, v1xright); :}
-|   CHAR_LITERAL:v1             {: RESULT = new SymbolLiteral(SymbolType.CHARACTER(v1xleft, v1xright), v1, v1xleft, v1xright); :}
-|   STRING_LITERAL:v1           {: RESULT = new SymbolLiteral(SymbolType.STRING(v1xleft, v1xright), v1, v1xleft, v1xright); :}
+    INTEGER_LITERAL:v1          {: RESULT = new SymbolLiteral(SymbolType.INTEGER(v1xleft, v1xright), v1); :}
+|   DOUBLE_LITERAL:v1           {: RESULT = new SymbolLiteral(SymbolType.DOUBLE(v1xleft, v1xright), v1); :}
+|   BOOLEAN_LITERAL:v1          {: RESULT = new SymbolLiteral(SymbolType.BOOLEAN(v1xleft, v1xright), v1); :}
+|   CHAR_LITERAL:v1             {: RESULT = new SymbolLiteral(SymbolType.CHARACTER(v1xleft, v1xright), v1); :}
+|   STRING_LITERAL:v1           {: RESULT = new SymbolLiteral(SymbolType.STRING(v1xleft, v1xright), v1); :}
 ;
 
 access ::=
@@ -250,8 +252,8 @@ access ::=
 arrayInitialization ::=
     arrayType:v1 IDENTIFIER:v2 ASSIGN NEW variableType:v3 arrayIndexes:v4
         {: RESULT = new SymbolArrayInitialization(v1, v2, new SymbolArrayIndexes(v3, v4, v3xleft, v3xright), v1xleft, v1xright); :}
-// |   arrayType:v1 IDENTIFIER:v2 ASSIGN arrayDimensions:v3 
-//        {: RESULT = null; :}
+|   arrayType:v1 IDENTIFIER:v2 ASSIGN arrayValuesInit:v3 
+        {: RESULT = new SymbolArrayInitialization(v1, v2, v3, v1xleft, v1xright); :}
 ;
 
 arrayType ::=
@@ -271,4 +273,23 @@ arrayIndexes ::=
         {: v1.add(v2); RESULT = v1; :}
 |   LSQUARE value:v1 RSQUARE 
         {: ArrayList<SymbolValue> lengths = new ArrayList<>(); lengths.add(v1); RESULT = lengths; :}
+;
+
+arrayValuesInit ::= 
+    LBRACKET arrayValues:v1 RBRACKET
+        {: RESULT = v1; :}
+;
+
+arrayValues ::=
+    arrayValues:v1 COMMA arrayValue:v2
+        {: v1.addValue(v2); RESULT = v1; :}
+|   arrayValue:v1
+        {: RESULT = new SymbolArrayValues(v1, v1xleft, v1xright); :}        
+;
+
+arrayValue ::=
+    value:v1
+        {: RESULT = v1; :}
+|   arrayValuesInit:v1
+        {: RESULT = v1; :}
 ;

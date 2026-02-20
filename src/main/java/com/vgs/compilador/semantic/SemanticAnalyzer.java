@@ -1,9 +1,12 @@
 package com.vgs.compilador.semantic;
 
 import com.vgs.compilador.manager.ErrorManager;
+import com.vgs.compilador.semantic.entries.SymbolArrayEntry;
 import com.vgs.compilador.semantic.entries.SymbolVariableEntry;
+import com.vgs.compilador.symbols.SymbolBase;
 import com.vgs.compilador.symbols.SymbolMain;
 import com.vgs.compilador.symbols.helpers.SymbolArrayIndexes;
+import com.vgs.compilador.symbols.helpers.SymbolArrayValues;
 import com.vgs.compilador.symbols.instruction.initialization.SymbolArrayInitialization;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
@@ -17,7 +20,6 @@ import com.vgs.compilador.symbols.value.access.SymbolArrayAccess;
 import com.vgs.compilador.symbols.value.access.SymbolFunctionCall;
 import com.vgs.compilador.symbols.value.access.SymbolVariableAccess;
 import com.vgs.compilador.symbols.value.operation.SymbolOperation;
-import java.util.ArrayList;
 
 /**
  *
@@ -77,8 +79,7 @@ public class SemanticAnalyzer {
      */
     private void manage(SymbolVariableInitialization instruction) {
         // 1. Comprobar que el identificador este disponible.
-        if (symbolTable.getDescription(instruction.getIdentifier()) != null) {
-            ErrorManager.semantic(instruction, String.format("[SymbolVariableInitialization] Identifier '%s' already in use at this level", instruction.getIdentifier()));
+        if (isIdentifierInUse(instruction, instruction.getIdentifier())) {
             return;
         }
 
@@ -87,9 +88,9 @@ public class SemanticAnalyzer {
             if (!manage(value)) {
                 return;
             }
+
             // 2. Comprobar que el tipo de variable y su valor coinciden.
-            if (!instruction.getType().equals(instruction.getValue().getType())) {
-                ErrorManager.semantic(instruction, String.format("[SymbolVariableInitialization] Type mismatch: %s and %s", instruction.getType(), instruction.getValue().getType()));
+            if (!validateType(instruction, instruction.getType(), value.getType())) {
                 return;
             }
         }
@@ -113,6 +114,9 @@ public class SemanticAnalyzer {
                 return manage(i);
             }
             case SymbolAccess i -> {
+                return manage(i);
+            }
+            case SymbolArrayValues i -> {
                 return manage(i);
             }
             default -> {
@@ -242,31 +246,35 @@ public class SemanticAnalyzer {
      * coinciden.
      */
     private void manage(SymbolArrayInitialization instruction) {
+        String id = instruction.getIdentifier();
+
         // 1. Comprobar que el identificador este disponible.
-        if (symbolTable.getDescription(instruction.getIdentifier()) != null) {
-            ErrorManager.semantic(instruction, String.format("[SymbolArrayInitialization] Identifier '%s' already in use at this level", instruction.getIdentifier()));
+        if (isIdentifierInUse(instruction, id)) {
             return;
         }
 
-        SymbolTypeArray type = instruction.getType();
-        String id = instruction.getIdentifier();
-
         SymbolArrayIndexes lengths = instruction.getLenghts();
-        if (lengths != null) {
-            if (!manage(lengths)) {
-                return;
-            }
-            // 2. Comprobar que el tipo coincide.
-            if (!instruction.getType().equals(lengths.getType())) {
-                ErrorManager.semantic(instruction, String.format("[SymbolArrayInitialization] Type mismatch: %s and %s", instruction.getType(), lengths.getType()));
-                return;
-            }
-            // 3. Comprobar que las dimensiones coinciden.
-            if (type.getNDims() != lengths.getDimensions()) {
-                ErrorManager.semantic(instruction, String.format("[SymbolArrayInitialization] Dimensions mismatch: %s and %s", type.getNDims(), lengths.getDimensions()));
-                return;
-            }
+        if ((lengths != null && !manage(lengths))
+                || (lengths == null && !manage(instruction.getValues()))) {
+            return;
         }
+
+        SymbolTypeArray type = instruction.getTypeArray();
+        int valueDims = instruction.getValueDimensions();
+
+        // 1. Comprobar que el tipo coincide.
+        if (!validateType(instruction, type, instruction.getValueType())) {
+            return;
+        }
+        
+        // 2. Comprobar que las dimensiones coinciden.
+        if (type.getNDims() != valueDims) {
+            ErrorManager.semantic(instruction, String.format("[SymbolArrayInitialization] Dimensions mismatch: %s and %s", type.getNDims(), valueDims));
+            return;
+        }
+
+        SymbolArrayEntry entry = new SymbolArrayEntry(id, type, instruction, valueDims, instruction.getLengthsArray());
+        symbolTable.put(entry);
     }
 
     /**
@@ -284,5 +292,85 @@ public class SemanticAnalyzer {
             }
         }
         return true;
+    }
+
+    /**
+     * Comprobaciones: 1. Comprobar que si un valor es una dimension el resto
+     * también lo sean. 2. Comprobar que todos los valores son del mismo tipo.
+     * 3. Comprobar que la profundidad de las dimensiones internas coinciden. 4.
+     * Comprobar que la longitud de las dimensiones internas coinciden.
+     */
+    private boolean manage(SymbolArrayValues instruction) {
+        SymbolValue[] values = instruction.getValues();
+
+        SymbolValue first = values[0];
+        if (!manage(first)) {
+            return false;
+        }
+
+        SymbolType firstType = first.getType();
+        boolean firstIsDim = false;
+        int firstDims = 0;
+        int firstLength = 0;
+        if (first instanceof SymbolArrayValues v1) {
+            firstIsDim = true;
+            firstDims = v1.getDimensions();
+            firstLength = v1.getLength();
+        }
+
+        for (int i = 1; i < values.length; i++) {
+            SymbolValue value = values[i];
+            if (!manage(value)) {
+                return false;
+            }
+
+            boolean valueIsDim = value instanceof SymbolArrayValues;
+
+            // 1. Comprobar que si un valor es una dimension el resto también lo sean
+            if (firstIsDim != valueIsDim) {
+                ErrorManager.semantic(instruction, "[SymbolArrayValues] Mixed scalar and array values are not allowed");
+                return false;
+            }
+
+            // 2. Comprobar que todos los valores son del mismo tipo.
+            if (!validateType(instruction, firstType, value.getType())) {
+                return false;
+            }
+
+            if (firstIsDim) {
+                SymbolArrayValues valueDim = (SymbolArrayValues) value;
+
+                // 3. Comprobar que la profundidad de las dimensiones internas coinciden.
+                if (firstDims != valueDim.getDimensions()) {
+                    ErrorManager.semantic(instruction, String.format("[SymbolArrayValues] Depth mismatch %s != %s", firstDims, valueDim.getDimensions()));
+                    return false;
+                }
+
+                // 4. Comprobar que la longitud de las dimensiones internas coinciden.
+                if (firstLength != valueDim.getLength()) {
+                    ErrorManager.semantic(instruction, String.format("[SymbolArrayValues] Length mismatch %s != %s", firstLength, valueDim.getLength()));
+                    return false;
+                }
+            }
+        }
+
+        instruction.setType(firstType);
+        return true;
+    }
+
+    private boolean validateType(SymbolBase instruction, SymbolType first, SymbolType second) {
+        if (!first.equals(second)) {
+            ErrorManager.semantic(instruction, String.format("[%s] Type mismatch: %s and %s", instruction.getClass().getSimpleName(), first, second));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isIdentifierInUse(SymbolBase instruction, String identifier) {
+        if (symbolTable.getDescription(identifier) != null) {
+            ErrorManager.semantic(instruction, String.format("[%s] Identifier '%s' already in use", instruction.getClass().getSimpleName(), identifier));
+            return true;
+        }
+        return false;
     }
 }

@@ -18,13 +18,9 @@ public class SymbolTypeArray extends SymbolType {
     public int getNDims() {
         return nDims;
     }
-
+    
     @Override
-    public String toString() {
-        String baseType = super.toString();
-        if (nDims == 1) {
-            return baseType + "[]";
-        }
-        return baseType + "[]".repeat(nDims);
+    public String toString(){
+        return super.toString() + "[]".repeat(nDims);
     }
 }

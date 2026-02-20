@@ -9,10 +9,10 @@ import com.vgs.compilador.symbols.type.SymbolType;
  */
 public abstract class SymbolEntry {
 
-    private final String id;                    // Nombre del identificador
-    private final SymbolType type;              // Tipo asociado
-    private final EntryKind kind;               // Qué tipo de entrada es
-    private final SymbolBase declaration;       // Nodo AST donde se declaró
+    protected final String id;              // Nombre del identificador
+    protected final SymbolType type;        // Tipo asociado
+    protected final EntryKind kind;         // Qué tipo de entrada es
+    protected final SymbolBase declaration; // Nodo AST donde se declaró
 
     protected SymbolEntry(String id, SymbolType type, EntryKind kind, SymbolBase declaration) {
         this.id = id;

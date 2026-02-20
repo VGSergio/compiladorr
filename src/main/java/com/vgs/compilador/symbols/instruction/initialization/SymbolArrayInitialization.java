@@ -1,12 +1,11 @@
 package com.vgs.compilador.symbols.instruction.initialization;
 
 import com.vgs.compilador.symbols.helpers.SymbolArrayIndexes;
-import com.vgs.compilador.symbols.SymbolBase;
+import com.vgs.compilador.symbols.helpers.SymbolArrayValues;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.type.SymbolTypeArray;
 import com.vgs.compilador.symbols.value.SymbolValue;
-import java.util.ArrayList;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
@@ -18,7 +17,7 @@ public class SymbolArrayInitialization extends SymbolInstruction {
     private final SymbolTypeArray type;
     private final String identifier;
     private final SymbolArrayIndexes lengths;
-    private final SymbolArrayDimension values;
+    private final SymbolArrayValues values;
 
     // Array sin valores
     public SymbolArrayInitialization(SymbolTypeArray type, String identifier, SymbolArrayIndexes lengths, Location left, Location right) {
@@ -29,23 +28,16 @@ public class SymbolArrayInitialization extends SymbolInstruction {
         this.values = null;
     }
 
-    // Array sin valores
-//    public SymbolArrayInitialization(SymbolTypeArray type, String identifier, ArrayList<SymbolValue<?>> lengths, Location left, Location right) {
-//        super("ArrayInitialization", left, right);
-//        this.type = type;
-//        this.identifier = identifier;
-//        this.lengths = lengths;
-//        this.values = null;
-//    }
     // Array con valores
-//    public SymbolArrayInitialization(SymbolTypeArray type, String identifier, Object values, Location left, Location right) {
-//        super("ArrayInitialization", left, right);
-//        this.type = type;
-//        this.identifier = identifier;
-//        this.lengths = null;
-//        this.values = values;
-//    }
-    public SymbolTypeArray getType() {
+    public SymbolArrayInitialization(SymbolTypeArray type, String identifier, SymbolArrayValues values, Location left, Location right) {
+        super("ArrayInitialization", left, right);
+        this.type = type;
+        this.identifier = identifier;
+        this.lengths = null;
+        this.values = values;
+    }
+
+    public SymbolTypeArray getTypeArray() {
         return type;
     }
 
@@ -56,26 +48,29 @@ public class SymbolArrayInitialization extends SymbolInstruction {
     public SymbolArrayIndexes getLenghts() {
         return lengths;
     }
-//    public Object getValues() {
-//        return values;
-//    }
+
+    public SymbolArrayValues getValues() {
+        return values;
+    }
+
+    public boolean isLengthsInitialized() {
+        return lengths != null;
+    }
+
+    public int getValueDimensions() {
+        return isLengthsInitialized() ? lengths.getDimensions() : values.getDimensions();
+    }
+
+    public SymbolValue[] getLengthsArray() {
+        return isLengthsInitialized() ? lengths.getLengths() : values.getLengths();
+    }
+
+    public SymbolType getValueType() {
+        return isLengthsInitialized() ? lengths.getType() : values.getType();
+    }
 
     @Override
     public String toString() {
-        return String.format("%s %s", type, identifier);
-    }
-
-    public class SymbolArrayDimension extends SymbolValue {
-
-        private final ArrayList<SymbolValue> values;
-
-        public SymbolArrayDimension(Location left, Location right) {
-            super("ArrayContent", left, right);
-            this.values = new ArrayList<>();
-        }
-
-        public void addValue(SymbolValue value) {
-            values.add(value);
-        }
+        return String.format("%s %s = %s", type, identifier, isLengthsInitialized() ? lengths : values);
     }
 }

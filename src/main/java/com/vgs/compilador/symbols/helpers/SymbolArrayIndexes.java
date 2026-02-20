@@ -36,6 +36,7 @@ public class SymbolArrayIndexes extends SymbolBase {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append(String.format("new %s", type));
         for (SymbolValue length : lengths) {
             sb.append('[').append(length).append(']');
         }
