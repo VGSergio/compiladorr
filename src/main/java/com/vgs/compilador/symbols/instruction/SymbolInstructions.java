@@ -1,7 +1,6 @@
 package com.vgs.compilador.symbols.instruction;
 
 import com.vgs.compilador.symbols.SymbolBase;
-import com.vgs.compilador.symbols.value.SymbolValue;
 import java_cup.runtime.ComplexSymbolFactory.Location;
 
 /**
@@ -33,4 +32,13 @@ public class SymbolInstructions extends SymbolBase {
         return nextInstructions;
     }
 
+    @Override
+    public String toString() {
+        if (nextInstructions != null) {
+            return actualInstruction + "\n" + nextInstructions;
+        }
+        return actualInstruction != null
+                ? actualInstruction.toString()
+                : "";
+    }
 }

@@ -5,7 +5,9 @@ main(){
     int d = a+b+c;
     String ga;
     int[][] e = {{1, 2, 4}, {3, 4, 1}, {5, 6, 9}};
-    int f = e;
-    int f = e[2];
     int f = e[2][2];
+    int suma(int jj){
+        int x = 3;
+        return x;
+    }
 }

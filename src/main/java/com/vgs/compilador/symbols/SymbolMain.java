@@ -19,4 +19,13 @@ public class SymbolMain extends SymbolBase {
     public SymbolInstructions getInstructions() {
         return instructions;
     }
+
+    @Override
+    public String toString() {
+        String body = instructions != null
+                ? "\n" + instructions + "\n"
+                : "";
+        return String.format("main(){%s}", body);
+    }
+
 }

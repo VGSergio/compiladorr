@@ -12,6 +12,7 @@ import com.vgs.compilador.symbols.helpers.SymbolArrayValues;
 import com.vgs.compilador.symbols.instruction.initialization.SymbolArrayInitialization;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
+import com.vgs.compilador.symbols.instruction.function.SymbolFunction;
 import com.vgs.compilador.symbols.instruction.initialization.SymbolVariableInitialization;
 import com.vgs.compilador.symbols.type.SymbolType;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
@@ -38,12 +39,8 @@ public class SemanticAnalyzer {
      */
     public void manage(SymbolMain main) {
         symbolTable = new SymbolTable();
-
-        symbolTable.enterBlock(SymbolTable.Scope.ScopeType.TEST);
-
         manage(main.getInstructions());
-
-        symbolTable.exitBlock();
+        System.out.println(main);
     }
 
     /**
@@ -69,6 +66,8 @@ public class SemanticAnalyzer {
             case SymbolVariableInitialization i ->
                 manage(i);
             case SymbolArrayInitialization i ->
+                manage(i);
+            case SymbolFunction i ->
                 manage(i);
             default ->
                 ErrorManager.semantic(instruction, String.format("[SymbolInstruction] Unhandled Symbol instance %s", instruction.getClass().getSimpleName()));
@@ -387,6 +386,10 @@ public class SemanticAnalyzer {
 
         instruction.setType(firstType);
         return true;
+    }
+
+    private void manage(SymbolFunction instruction) {
+        System.out.println(instruction);
     }
 
     private boolean validateDimensions(SymbolBase instruction, int first, int second) {

@@ -7,10 +7,12 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  *
  * @author sergi
  */
-public class SymbolInstruction extends SymbolBase {
+public abstract class SymbolInstruction extends SymbolBase {
 
     public SymbolInstruction(String name, Location left, Location right) {
         super(name, left, right);
     }
 
+    @Override
+    public abstract String toString();
 }

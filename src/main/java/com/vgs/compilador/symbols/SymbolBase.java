@@ -7,14 +7,14 @@ import java_cup.runtime.ComplexSymbolFactory.Location;
  *
  * @author sergi
  */
-public class SymbolBase extends ComplexSymbol {
+public abstract class SymbolBase extends ComplexSymbol {
 
     private static int idAutoIncrement = 0;
 
     public SymbolBase(String name) {
         super(name, idAutoIncrement++);
     }
-    
+
     public SymbolBase(String name, Location left, Location right) {
         super(name, idAutoIncrement++, left, right);
     }
@@ -30,4 +30,7 @@ public class SymbolBase extends ComplexSymbol {
     public int getColumn() {
         return getRight().getColumn();
     }
+
+    @Override
+    public abstract String toString();
 }

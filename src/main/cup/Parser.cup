@@ -6,6 +6,9 @@ import com.vgs.compilador.symbols.helpers.SymbolArrayIndexes;
 import com.vgs.compilador.symbols.helpers.SymbolArrayValues;
 import com.vgs.compilador.symbols.instruction.SymbolInstruction;
 import com.vgs.compilador.symbols.instruction.SymbolInstructions;
+import com.vgs.compilador.symbols.instruction.function.SymbolFunction;
+import com.vgs.compilador.symbols.instruction.function.SymbolParameter;
+import com.vgs.compilador.symbols.instruction.function.SymbolReturn;
 import com.vgs.compilador.symbols.instruction.initialization.SymbolArrayInitialization;
 import com.vgs.compilador.symbols.instruction.initialization.SymbolVariableInitialization;
 import com.vgs.compilador.symbols.value.SymbolLiteral;
@@ -87,8 +90,8 @@ terminal        String      IDENTIFIER;
 
 // Simbolos no terminales
 nonterminal     SymbolMain                      main;
-nonterminal     SymbolInstructions              instructions;
-nonterminal     SymbolInstruction               instruction;
+nonterminal     SymbolInstructions              instructions, functionInstructions;
+nonterminal     SymbolInstruction               instruction, functionInstruction;
 nonterminal     SymbolVariableInitialization    variableInitialization;
 nonterminal     SymbolType                      variableType;
 nonterminal     SymbolValue                     value, operand, literal, arrayValue;
@@ -101,6 +104,10 @@ nonterminal     SymbolTypeArray                 arrayType;
 nonterminal     Integer                         arrayDims;
 nonterminal     ArrayList<SymbolValue>          arrayIndexes;
 nonterminal     SymbolArrayValues               arrayValuesInit, arrayValues;
+nonterminal     SymbolFunction                  function;
+nonterminal     ArrayList<SymbolParameter>      parameters, lParameters;
+nonterminal     SymbolParameter                 parameter;
+nonterminal     SymbolReturn                    returnInstruction;
 
 
 // Precedendias, de menos a más
@@ -129,8 +136,9 @@ instructions::=
 instruction ::=
     variableInitialization:v1 SEMICOLON     {: RESULT = v1; :}
 |   arrayInitialization:v1 SEMICOLON        {: RESULT = v1; :}
-|   error SEMICOLON:v1                      {: RESULT = new SymbolInstruction("Error", v1xleft, v1xright); :}
-|   error RBRACKET:v1                       {: RESULT = new SymbolInstruction("Error", v1xleft, v1xright); :}
+|   function:v1                             {: RESULT = v1; :}
+|   error SEMICOLON:v1                      {: RESULT = null; :}
+|   error RBRACKET:v1                       {: RESULT = null; :}
 ;
 
 variableInitialization ::=
@@ -294,4 +302,51 @@ arrayValue ::=
         {: RESULT = v1; :}
 |   arrayValuesInit:v1
         {: RESULT = v1; :}
+;
+
+function ::=
+    variableType:v1 IDENTIFIER:v2 LPAREN parameters:v3 RPAREN LBRACKET functionInstructions:v4 RBRACKET
+        {: RESULT = new SymbolFunction(v1, v2, v3, v4, v1xleft, v1xright); :}
+|   arrayType:v1 IDENTIFIER:v2 LPAREN parameters:v3 RPAREN LBRACKET functionInstructions:v4 RBRACKET
+        {: RESULT = new SymbolFunction(v1, v2, v3, v4, v1xleft, v1xright); :}
+|   VOID:v1 IDENTIFIER:v2 LPAREN parameters:v3 RPAREN LBRACKET functionInstructions:v4 RBRACKET
+        {: RESULT = new SymbolFunction(SymbolType.VOID(v1xleft, v1xright), v2, v3, v4, v1xleft, v1xright); :}
+;
+
+parameters ::=
+    lParameters:v1
+        {: RESULT = v1; :}
+|   
+        {: RESULT = new ArrayList<SymbolParameter>(); :}
+;
+
+lParameters ::=
+    lParameters:v1 COMMA parameter:v2
+        {: v1.add(v2); RESULT = v1; :}
+|   parameter:v1
+        {: ArrayList<SymbolParameter> parameters = new ArrayList<>(); parameters.add(v1); RESULT = parameters; :}
+;
+
+parameter ::=
+    variableType:v1 IDENTIFIER:v2
+        {: RESULT = new SymbolParameter(v1, v2, v1xleft, v1xright); :}
+|   arrayType:v1 IDENTIFIER:v2
+        {: RESULT = new SymbolParameter(v1, v2, v1xleft, v1xright); :}
+;
+
+functionInstructions::=
+    functionInstruction:v1 functionInstructions:v2  {: RESULT = new SymbolInstructions(v1, v2, v1xleft, v1xright); :}
+|                                                   {: RESULT = new SymbolInstructions(); :}
+;
+
+functionInstruction ::=
+    instruction:v1          {: RESULT = v1; :}
+|   returnInstruction:v1    {: RESULT = v1; :}
+;
+
+returnInstruction ::= 
+    RETURN:v1 SEMICOLON
+        {: RESULT = new SymbolReturn(v1xleft, v1xright); :}
+|   RETURN:v1 value:v2 SEMICOLON
+        {: RESULT = new SymbolReturn(v2, v1xleft, v1xright); :}
 ;
